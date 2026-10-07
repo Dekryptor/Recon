@@ -1,0 +1,90 @@
+name: ci
+
+# The gates AGENTS.md names, run on a machine that is not the author's: build, test, the two corpus
+# harnesses, and the NativeAOT publish that has to stay warning-free. Linux gets the full toolchain
+# (mingw, clang, lld, llvm) so the corpus builders run; Windows gets the build, the test suite and a
+# `win-x64` publish, which is what a Windows checkout does.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  # `Directory.Build.props` refuses a package cache that would land inside the workspace when the SDK
+  # lives outside it; keeping it in the runner's temp directory satisfies that on every host.
+  NUGET_PACKAGES: ${{ runner.temp }}/nuget/packages
+  NUGET_HTTP_CACHE_PATH: ${{ runner.temp }}/nuget/http-cache
+
+jobs:
+  linux:
+    name: linux — build, test, corpus harnesses, AOT publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+
+      - name: environment
+        run: |
+          dotnet --info
+          uname -a
+
+      - name: install the toolchains the corpora are built with
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            mingw-w64 clang lld llvm || echo "::warning::toolchain install failed; some corpus tests will skip"
+
+      - name: build the corpora
+        run: |
+          bash tools/build-corpus.sh || echo "::warning::MinGW corpus did not build"
+          bash tools/build-elf-corpus.sh || echo "::warning::ELF corpus did not build"
+          bash tools/build-msvc-corpus.sh || echo "::warning::MSVC corpus did not build"
+          bash tools/build-macho-corpus.sh || echo "::warning::Mach-O corpus did not build"
+
+      - name: build
+        run: dotnet build tests/Recon.Tests/Recon.Tests.csproj -c Debug --nologo -v minimal
+
+      - name: test
+        run: dotnet test tests/Recon.Tests/Recon.Tests.csproj -c Debug --no-build --nologo --logger "console;verbosity=normal"
+
+      - name: corpus oracle harness
+        run: bash tools/validate-corpus.sh --verbose
+
+      - name: delink/relink harness
+        run: bash tools/relink-corpus.sh
+
+      - name: NativeAOT publish (linux-x64)
+        run: dotnet publish src/Recon.Cli/Recon.Cli.csproj -c Release -r linux-x64 --nologo
+
+  windows:
+    name: windows — build, test, AOT publish
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+
+      - name: environment
+        run: dotnet --info
+
+      - name: build
+        run: dotnet build tests/Recon.Tests/Recon.Tests.csproj -c Debug --nologo -v minimal
+
+      - name: test
+        run: dotnet test tests/Recon.Tests/Recon.Tests.csproj -c Debug --no-build --nologo --logger "console;verbosity=normal"
+
+      - name: NativeAOT publish (win-x64)
+        run: dotnet publish src/Recon.Cli/Recon.Cli.csproj -c Release -r win-x64 --nologo
