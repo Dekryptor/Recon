@@ -23,7 +23,10 @@ env:
   # The package cache must not land inside `$HOME`, and that is a build error rather than a
   # preference: `recon/Directory.Build.props` fails the build when the checkout is under `$HOME`
   # (it is, on a runner) *and* the cache is too. `runner.temp` is under `/home/runner` on Linux, so
-  # the cache goes to `/tmp` there; on Windows `runner.temp` is on D: and the check cannot trip.
+  # the cache goes to `/tmp` — as a literal, because the `runner` context does not exist in an `env`
+  # block and using it there is not a warning but a workflow that never starts a job (which is
+  # exactly what this file did on its first run). On Windows `/tmp` is `C:\tmp` and the `$HOME`
+  # check cannot trip either way.
   NUGET_PACKAGES: /tmp/nuget/packages
   NUGET_HTTP_CACHE_PATH: /tmp/nuget/http-cache
 
@@ -82,10 +85,6 @@ jobs:
     defaults:
       run:
         working-directory: recon
-    env:
-      # `runner.temp` is on D: on a Windows runner, so this cannot trip the `$HOME` check either way.
-      NUGET_PACKAGES: ${{ runner.temp }}/nuget/packages
-      NUGET_HTTP_CACHE_PATH: ${{ runner.temp }}/nuget/http-cache
     steps:
       - uses: actions/checkout@v4
 
