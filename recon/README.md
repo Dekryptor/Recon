@@ -122,6 +122,10 @@ recon permute --function add --json --check-schema   # the same run, for a scrip
 # a library beside the binary: the objects a link can pull in, and what compiled them
 recon lib inputs/VBAEXE6.LIB       # members, and each object's @comp.id
 
+# the text in a binary: where it lies, so the message leads to the code that prints it
+recon strings inputs/sample.exe --filter "%s" --json --check-schema
+recon strings inputs/sample.exe --encoding utf16 --section .rdata --unique
+
 # a Visual Basic 6 program: its objects, their kinds, and the path it was built in
 recon vb6 inputs/VISDATA.EXE
 recon opcodes inputs/msvbvm60.dll # the runtime's 256 p-code opcodes, from their handlers

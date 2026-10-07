@@ -245,6 +245,7 @@ public sealed class ToolchainProfileReport
 [JsonSerializable(typeof(Recon.Reporting.Vb6Report))]
 [JsonSerializable(typeof(Recon.Reporting.OpcodesReport))]
 [JsonSerializable(typeof(Recon.Reporting.PcodeReport))]
+[JsonSerializable(typeof(Recon.Reporting.StringsReport))]
 [JsonSerializable(typeof(List<Recon.Compare.AlignedInstruction>))]
 [JsonSerializable(typeof(Recon.Reporting.ProgressSnapshot))]
 [JsonSerializable(typeof(Recon.Reporting.SignatureBuildReport))]
@@ -1039,4 +1040,97 @@ public sealed class PcodeInstructionRow
 
     [JsonPropertyName("unhandled")]
     public bool Unhandled { get; set; }
+}
+
+/// <summary>
+/// What <c>recon strings</c> found in a binary. A reversing session usually starts here, and the
+/// fields are the three questions asked of a hit: where is it (<c>offset</c> for a hex editor,
+/// <c>rva</c> for a disassembler), what section is it in, and did anything point at it — which is
+/// what <c>recon inspect xrefs</c> answers for the address this reports.
+/// </summary>
+public sealed class StringsReport
+{
+    [JsonPropertyName("command")]
+    public string Command { get; set; } = string.Empty;
+
+    [JsonPropertyName("tool_version")]
+    public string ToolVersion { get; set; } = string.Empty;
+
+    [JsonPropertyName("file")]
+    public string File { get; set; } = string.Empty;
+
+    [JsonPropertyName("sha256")]
+    public string Sha256 { get; set; } = string.Empty;
+
+    [JsonPropertyName("format")]
+    public string? Format { get; set; }
+
+    /// <summary>The runs, in the order they lie in the file.</summary>
+    [JsonPropertyName("strings")]
+    public List<StringRow> Strings { get; set; } = [];
+
+    [JsonPropertyName("summary")]
+    public StringsSummary Summary { get; set; } = new();
+
+    /// <summary>Anything that stopped the reading from being complete, said rather than swallowed.</summary>
+    [JsonPropertyName("problems")]
+    public List<string> Problems { get; set; } = [];
+}
+
+public sealed class StringRow
+{
+    [JsonPropertyName("offset")]
+    public long Offset { get; set; }
+
+    [JsonPropertyName("rva")]
+    public uint? Rva { get; set; }
+
+    [JsonPropertyName("section")]
+    public string Section { get; set; } = string.Empty;
+
+    /// <summary><c>ascii</c> or <c>utf16</c>: one byte per character, or two.</summary>
+    [JsonPropertyName("encoding")]
+    public string Encoding { get; set; } = string.Empty;
+
+    /// <summary>Characters, which is what a human counts.</summary>
+    [JsonPropertyName("length")]
+    public int Length { get; set; }
+
+    /// <summary>Bytes in the file, which is what an offset needs.</summary>
+    [JsonPropertyName("bytes")]
+    public int Bytes { get; set; }
+
+    [JsonPropertyName("text")]
+    public string Text { get; set; } = string.Empty;
+}
+
+public sealed class StringsSummary
+{
+    /// <summary>Runs reported, after any filter or limit.</summary>
+    [JsonPropertyName("reported")]
+    public int Reported { get; set; }
+
+    /// <summary>Runs found before the limit, so a truncated report says so.</summary>
+    [JsonPropertyName("found")]
+    public int Found { get; set; }
+
+    [JsonPropertyName("ascii")]
+    public int Ascii { get; set; }
+
+    [JsonPropertyName("utf16")]
+    public int Utf16 { get; set; }
+
+    /// <summary>Distinct texts among the runs found: how much of it is repetition.</summary>
+    [JsonPropertyName("distinct")]
+    public int Distinct { get; set; }
+
+    [JsonPropertyName("bytes_scanned")]
+    public long BytesScanned { get; set; }
+
+    [JsonPropertyName("min_length")]
+    public int MinLength { get; set; }
+
+    /// <summary>The sections the scan covered, in file order; empty means the whole file.</summary>
+    [JsonPropertyName("sections_scanned")]
+    public List<string> SectionsScanned { get; set; } = [];
 }
