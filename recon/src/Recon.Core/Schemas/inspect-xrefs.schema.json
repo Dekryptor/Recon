@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-xrefs-0.1.json",
+  "title": "Cross-references of an image",
+  "description": "One `recon inspect` subcommand's output: cross-references of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "xrefs",
+    "total"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "xrefs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/xref"
+      }
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "definitions": {
+    "xref": {
+      "type": "object",
+      "required": [
+        "from_rva",
+        "to_rva",
+        "kind",
+        "via_reloc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "to_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "enum": [
+            "call",
+            "jump",
+            "data_read",
+            "data_write",
+            "data_ref",
+            "import_call",
+            "import_ref",
+            "reloc"
+          ]
+        },
+        "via_reloc": {
+          "type": "boolean"
+        },
+        "in_function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to_function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

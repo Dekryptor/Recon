@@ -1,0 +1,50 @@
+# Base profile for Microsoft Visual C++ toolchains.
+# Abstract: it exists to be extended, and cannot be used as a unit's toolchain.
+schema_version = 1
+id = "msvc-base"
+display_name = "Microsoft Visual C++ (base)"
+family = "msvc"
+abstract = true
+
+[abi]
+mangling = "msvc"
+default_cc = "cdecl"
+member_cc = "thiscall"
+pointer_size = 4
+
+[codegen]
+function_align = 16
+padding_bytes = [0xCC]
+# Patterns the function detector looks for when it has no symbols. One instruction per hint part.
+prologue_hints = ["push ebp; mov ebp, esp", "sub esp, imm"]
+
+[linker]
+# MSVC folds identical function bodies onto one address (COMDAT folding).
+identical_code_folding = "possible"
+comdat = true
+
+[eh]
+model = "msvc-seh"
+
+[debug]
+format = "pdb"
+
+[[detect.section]]
+name = ".eh_frame"
+absent = true
+
+[detect.pdb_compiland]
+producer_contains = "Microsoft (R) Optimizing Compiler"
+
+[detect.comment_section]
+contains = "Microsoft"
+
+[link]
+output_flag = "/OUT:{exe}"
+
+# MSVC pads between functions with int3, so alignment bytes must not read as code. Its linker may
+# fold identical bodies; a folded pairing is reported as such rather than counted as a match.
+[compare]
+similarity_threshold = 0.80
+ignore_padding = true
+difference_limit = 24

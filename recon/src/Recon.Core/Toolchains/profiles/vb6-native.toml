@@ -1,0 +1,74 @@
+# Visual Basic 6.0, compiled to native code.
+#
+# VB6 compiles with the Visual C++ back end — the same compiler back end Visual Studio 98's cl.exe
+# drives — so the ABI, the padding, the SEH model and the padding bytes are the ones Microsoft's
+# linker produces: this profile inherits all of that from msvc-base and adds only what is specific
+# to a Visual Basic program.
+#
+# The linker version and the Rich header below were read off a real VB6 program, VISDATA.EXE from
+# the 1998 Visual Basic 6 samples, with `recon inspect producers`:
+#
+#   linker version                     6.0
+#   Rich header, XOR key 0x8917A385    0x000E masm_6.13  build 7299  count 1
+#                                      0x0009 vb6_basic  build 8041  count 36   <- the program
+#                                      0x000D vb60       build 8167  count 1    <- last record
+#   imports                            MSVBVM60.DLL
+#
+# Thirty-six Basic objects is a program's worth of forms and modules, and the single vb60 record is
+# the link step: that shape is what identifies a Visual Basic program. The two product ids are
+# written down and their build numbers are not, because three measured builds are not a range — a
+# service pack moves them, and a rule naming 8041 would then silently stop matching.
+schema_version = 1
+id = "vb6-native"
+display_name = "Visual Basic 6.0 (native)"
+family = "msvc"
+extends = "msvc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+# The program's own header, which is the one signal that separates this from the p-code profile
+# below: both import MSVBVM60.DLL, both carry the same linker stamp, and both carry Rich records
+# with the same product ids — what differs is whether the image holds compiled x86 functions or a
+# stream for MSVBVM60.DLL to interpret. `ProjectInfo.aNativeCode` is the field that says which, and
+# 0 there means p-code, so this profile is only ever suggested for a program that has native code.
+# A profile that declares a vb6_header rule is never suggested for the other kind — see
+# `vb6-pcode.toml`.
+[[detect.vb6_header]]
+kind = "native"
+
+# MSVBVM60.DLL is the Visual Basic 6.0 virtual machine: the runtime every VB6 program is linked
+# against, whether it was compiled to native code or to p-code. The "60" is what makes this VB6 and
+# not "some version of Visual Basic" — VB5's runtime is MSVBVM50.DLL and the VB3/VB4 ones were
+# VBRUN*.DLL, so each of those is a separate profile when a target needs one.
+[[detect.import_dll]]
+contains = "msvbvm60"
+
+# The Visual Studio 98 linker that a VB6 program is linked through stamps 6.0 in the optional
+# header. It also stamps 6.0 on the C++ tools of that release — LINK.EXE, C2.EXE, CVPACK.EXE all
+# carry it — which is why this is one rule among several and never the only one that fires.
+[[detect.linker_version]]
+min = "6.0"
+max = "6.99"
+
+# 0x000D is prodidVisualBasic60, the Visual Basic 6 code generator, and 0x0009 is prodidUtc12_Basic,
+# the Basic compiler that produced the program's objects. Neither is a linker record, which is what
+# `role` distinguishes: in a VB6 program the *last* entry is the Basic compiler, so matching the
+# linker by position would miss it entirely.
+[[detect.rich_header]]
+id = 13
+role = "compiler"
+
+[[detect.rich_header]]
+id = 9
+role = "compiler"
+
+# A VB6 program carries no PDB and no CodeView record: the compiler writes no debug information for
+# the code it generates, which is why a VB6 binary is one of the cases the pattern file
+# (recon sigs) exists for.
+[debug]
+format = "none"
+
+# VB6's own procedures are reached through the runtime, and the generated code pads with int3 like
+# any other MSVC output, so the inherited compare settings need no change here.

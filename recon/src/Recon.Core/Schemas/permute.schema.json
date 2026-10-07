@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/permute-0.1.json",
+  "title": "Permute document",
+  "description": "The result of one `recon permute` run: what the source scores as it stands, what each variant scored, and why the run stopped.",
+  "type": "object",
+  "required": ["schema_version", "unit", "source", "function", "baseline_score", "baseline_exact", "variants", "candidate_count", "tried", "stopped_because", "best_beats_baseline"],
+  "additionalProperties": false,
+  "definitions": {
+    "variant": {
+      "type": "object",
+      "required": ["variant_id", "kind", "description", "function", "score", "exact", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "variant_id": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["statement-swap", "operand-swap", "increment-form", "declaration-swap", "branch-inversion", "optimization-level", "baseline"]
+        },
+        "description": { "type": "string", "description": "One line a human can read to decide whether to adopt it." },
+        "function": { "type": "string" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "exact": { "type": "boolean", "description": "Byte equality after relocation normalization: the only result that means the source reproduces the original." },
+        "status": { "type": "string", "enum": ["exact", "changed", "folded", "only_left", "only_right", "missing"] },
+        "optimization": {
+          "type": ["string", "null"],
+          "description": "The optimization level this variant was built at, when the variant is a change to the build rather than to the source. Null for a variant that edits the text."
+        },
+        "differences": { "type": "integer", "minimum": 0 },
+        "built": { "type": "boolean" },
+        "build_error": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "properties": {
+    "schema_version": { "type": "string" },
+    "command": { "type": "string", "description": "The command that produced this, so an agent can tell two runs apart." },
+    "tool_version": { "type": "string" },
+    "unit": { "type": "string", "description": "The unit whose source was permuted." },
+    "source": { "type": "string", "description": "The source file, as project.toml spells it." },
+    "function": { "type": "string", "description": "The function every variant was scored against." },
+    "baseline_score": { "type": "number", "minimum": 0, "maximum": 1, "description": "The score of the source as it stands. A variant is only interesting if it beats this." },
+    "baseline_exact": { "type": "boolean" },
+    "candidate_count": { "type": "integer", "minimum": 0, "description": "How many variants the generator could prove equivalent, before the budget." },
+    "tried": { "type": "integer", "minimum": 0 },
+    "stopped_because": { "type": "string", "description": "The budget, an exact match, no candidates, or a project that does not build." },
+    "variants": {
+      "type": "array",
+      "description": "Every variant that was built, in the order it was tried.",
+      "items": { "$ref": "#/definitions/variant" }
+    },
+    "best": {
+      "description": "The best-scoring variant that built, or null when nothing could be built. Read best_beats_baseline first: a variant that merely ties the source has found nothing.",
+      "oneOf": [
+        { "$ref": "#/definitions/variant" },
+        { "type": "null" }
+      ]
+    },
+    "best_source": {
+      "description": "Where the winning source was written for a human to adopt, or null when nothing was written.",
+      "type": ["string", "null"]
+    },
+    "optimization_levels": {
+      "type": "array",
+      "description": "The levels this unit's toolchain offers, spelled the way its compiler spells them, when --flags asked for them to be tried. Empty when flags were not permuted, or the profile declares none.",
+      "items": { "type": "string" }
+    },
+    "best_optimization": {
+      "description": "The level the winning variant was built at, when what won was a change to the build rather than to the source.",
+      "type": ["string", "null"]
+    },
+    "best_write_error": {
+      "description": "Why the winning source could not be written. Never fatal: the search already ran.",
+      "type": ["string", "null"]
+    },
+    "best_beats_baseline": {
+      "type": "boolean",
+      "description": "True when the best variant scores strictly above the source as it stands. This is the field to branch on."
+    }
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.example/schemas/pcode.schema.json",
+  "title": "Visual Basic 6 program compiled to p-code",
+  "description": "Every procedure of a Visual Basic 6 program compiled to p-code: where its byte stream is, how long it is, and what is in it. The streams are found through the program's own structures and decoded with instruction lengths measured out of the runtime's handlers.",
+  "type": "object",
+  "required": [
+    "file",
+    "runtime",
+    "summary",
+    "procedures",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path of the program as it was given."
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "runtime": {
+      "type": "string",
+      "description": "The runtime the instruction lengths were measured from, which is what makes them attributable."
+    },
+    "runtime_version": {
+      "type": "string",
+      "description": "The runtime's own version resource, read out of the file."
+    },
+    "runtime_build_the_program_was_built_against": {
+      "type": "integer",
+      "description": "The runtime build the program's own VB5! header names (wRuntimeBuild): what it was compiled against, which is a different statement from the version of the file the lengths were measured from."
+    },
+    "runtime_file_build": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "The build the runtime file's version resource reports (6.00.9848 says 9848), or null when that resource does not carry three numeric fields."
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "objects",
+        "procedures",
+        "exact",
+        "padded",
+        "undecodable",
+        "ended_with_exit",
+        "instructions",
+        "code_bytes",
+        "empty_slots",
+        "entries_not_procedures",
+        "resolved_readings"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "objects": {
+          "type": "integer"
+        },
+        "procedures": {
+          "type": "integer",
+          "description": "Method table entries that name their own object, which is what makes them procedures."
+        },
+        "exact": {
+          "type": "integer",
+          "description": "Streams whose instructions end exactly on the descriptor."
+        },
+        "padded": {
+          "type": "integer",
+          "description": "Streams with one to four bytes of padding between the last instruction and the descriptor."
+        },
+        "undecodable": {
+          "type": "object",
+          "description": "Streams that were not read, by reason.",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "ended_with_exit": {
+          "type": "integer",
+          "description": "Procedures whose last instruction is one of the exit opcodes."
+        },
+        "instructions": {
+          "type": "integer"
+        },
+        "code_bytes": {
+          "type": "integer"
+        },
+        "empty_slots": {
+          "type": "integer",
+          "description": "Method table slots with no address: procedures the project declares and never writes."
+        },
+        "entries_not_procedures": {
+          "type": "integer",
+          "description": "Slots whose entry does not name this object, so it is not one of its procedures."
+        },
+        "resolved_readings": {
+          "type": "integer",
+          "description": "Streams that admit more than one reading, which their own descriptor does not settle."
+        }
+      }
+    },
+    "procedures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "object",
+          "method",
+          "descriptor_rva",
+          "code_rva",
+          "code_size",
+          "instructions",
+          "padding",
+          "status",
+          "ends_with_exit"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "object": {
+            "type": "string"
+          },
+          "object_index": {
+            "type": "integer"
+          },
+          "method": {
+            "type": "integer"
+          },
+          "descriptor_rva": {
+            "type": "integer",
+            "description": "The ProcDscInfo the method table points at."
+          },
+          "code_rva": {
+            "type": "integer"
+          },
+          "code_size": {
+            "type": "integer",
+            "description": "The descriptor's back-offset: how long the stream is."
+          },
+          "frame_size": {
+            "type": "integer"
+          },
+          "argument_size": {
+            "type": "integer"
+          },
+          "instructions": {
+            "type": "integer"
+          },
+          "padding": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "description": "exact, padded, ambiguous or unmeasured."
+          },
+          "ends_with_exit": {
+            "type": "boolean"
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "instructions": {
+      "type": "array",
+      "description": "The instructions of the selected procedure, when one was selected.",
+      "items": {
+        "type": "object",
+        "required": [
+          "rva",
+          "opcode",
+          "size",
+          "operand"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rva": {
+            "type": "integer"
+          },
+          "opcode": {
+            "type": "string",
+            "description": "One byte, or a lead byte and the byte that indexes its table."
+          },
+          "bytes": {
+            "type": "string",
+            "description": "The instruction as it lies in the stream, in hex: what is there, rather than what was made of it."
+          },
+          "size": {
+            "type": "integer"
+          },
+          "operand": {
+            "type": "string",
+            "enum": ["none", "data", "slot", "target"],
+            "description": "What the bytes after the opcode are, read from the runtime's handler: none when there are none, data when the handler reads them as a value, slot when the word is a frame slot, target when the word says where control goes. The same vocabulary, from the same measurement, as `recon opcodes`."
+          },
+          "operand_bytes": {
+            "type": "integer",
+            "description": "How many bytes of operand the instruction has, or -1 when its length is not one number."
+          },
+          "operand_at": {
+            "type": "integer",
+            "description": "Where in the operand the word the kind is about sits. Not always zero: a For/Next takes its counter's frame slot first and the distance it branches by second."
+          },
+          "target": {
+            "type": ["integer", "null"],
+            "description": "Where a target operand goes, as an rva of the program: the procedure's code address plus the word, which is the interpreter's own rule."
+          },
+          "target_is_an_instruction_start": {
+            "type": "boolean",
+            "description": "Whether that target lands on an instruction start of the same procedure. Every branch operand of the 42-program corpus does."
+          },
+          "frame_slot": {
+            "type": ["integer", "null"],
+            "description": "The frame slot the operand names, sign-extended: for a slot operand the word itself, and for a target operand the slot its frame_slot_at word names, which is the counter of a For/Next."
+          },
+          "frame_slot_at": {
+            "type": "integer",
+            "description": "Where in the operand that slot word sits, in bytes from the first byte after the opcode; -1 when the handler sign-extends none."
+          },
+          "name": {
+            "type": "string",
+            "description": "Empty when the runtime's handler gives no single name."
+          },
+          "unhandled": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

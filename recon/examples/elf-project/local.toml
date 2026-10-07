@@ -1,0 +1,9 @@
+schema_version = 1
+
+# Machine-specific paths. This file is not committed.
+[inputs]
+dir = "../../tests/corpus/elf"
+
+# No root, and no cc: gcc-14-elf64 names `gcc`, which is on PATH on any Linux box that can build
+# the corpus. Naming an install here is how a different GCC 14 would be used instead.
+[toolchain.gcc-14-elf64]

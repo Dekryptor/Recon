@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Recon</RootNamespace>
+    <AssemblyName>Recon.Core</AssemblyName>
+    <IsAotCompatible>true</IsAotCompatible>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Iced" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Toolchains/profiles/*.toml" />
+    <EmbeddedResource Include="Schemas/*.json" />
+    <EmbeddedResource Include="Reporting/viewer.html" />
+  </ItemGroup>
+</Project>

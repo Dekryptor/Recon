@@ -1,0 +1,70 @@
+schema_version = 1
+
+# A project that measures progress: the MinGW corpus's release build is the original and its debug
+# build stands in as the rebuild, with three units declaring which functions each one is
+# responsible for. Run it after building the corpus:
+#
+#   bash tools/build-corpus.sh
+#   recon report --project examples/progress-demo --aligned
+#   recon serve  --project examples/progress-demo
+#
+# The units below cover six of the corpus's 142 functions, which is what an in-progress
+# reconstruction looks like: the report says how far those six are and how many are unclaimed,
+# instead of one number for the whole image.
+
+[project]
+name = "sample"
+description = "Per-unit progress over the MinGW corpus"
+
+[target]
+format = "pe32"
+arch = "x86"
+
+[[input]]
+id = "main"
+role = "original"
+file = "sample-release.exe"
+sha256 = "84668014ea9bca10617db37a664f31de797d647e2cab3eefd89cd87521b2861c"
+
+[[input]]
+id = "rebuilt"
+role = "reference"
+file = "sample-debug.exe"
+sha256 = "41b9c2eff66b8a17d007711a8eda78aa31a3684f824b9f26dfb5ded6060df162"
+
+[[unit]]
+name = "arith"
+source = "src/arith.c"
+status = "wip"
+
+[[unit.covers]]
+symbol = "add"
+
+[[unit.covers]]
+symbol = "sub_fast"
+
+[[unit.covers]]
+symbol = "mul_std"
+
+[[unit]]
+name = "control"
+source = "src/control.c"
+status = "wip"
+
+[[unit.covers]]
+symbol = "fib"
+
+[[unit.covers]]
+symbol = "loop_sum"
+
+[[unit]]
+name = "startup"
+source = "src/startup.c"
+status = "library"
+
+[[unit.covers]]
+symbol = "pre_c_init"
+
+[report]
+output = "build/report"
+history = true

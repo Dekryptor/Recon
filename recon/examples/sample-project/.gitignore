@@ -1,0 +1,5 @@
+local.toml
+build/
+inputs/
+# `recon toolchain builtins` writes the shipped profiles here; they are not this project's source.
+toolchains/

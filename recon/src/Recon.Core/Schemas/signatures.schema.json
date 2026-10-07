@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.tool/schemas/signatures.schema.json",
+  "title": "Signature database",
+  "description": "Patterns that name a function by the first bytes of its body: the FLIRT idea, in the one form this tool can check. Built by `recon sigs build` from a binary whose functions something else named, and applied by `recon sigs apply` or `recon inventory --signatures` to one whose functions nothing named. A pattern never invents a function: it names addresses the analysis already found, and it is dropped when two functions share it.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "entries"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generator": {
+      "description": "What produced the file, for example \"recon 1.0.0\".",
+      "type": "string"
+    },
+    "pattern_length": {
+      "description": "How many bytes of a function's head one pattern holds.",
+      "type": "integer",
+      "minimum": 4
+    },
+    "min_fixed_bytes": {
+      "description": "How many of them must be bytes a link cannot change. A pattern of all wildcards matches everything, which is worse than no pattern.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "bytes",
+          "mask"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "description": "The name this pattern stands for.",
+            "type": "string"
+          },
+          "size": {
+            "description": "The size of the function the pattern was taken from: a hint, not a claim.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "library": {
+            "description": "What the function belongs to: a runtime, a static library, a version of the CRT.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit": {
+            "description": "The object or source file the pattern was taken from, when the source said.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bytes": {
+            "description": "The bytes of the function's head, as lower-case hex: two characters each.",
+            "type": "string",
+            "pattern": "^([0-9a-f]{2})+$"
+          },
+          "mask": {
+            "description": "Which of those bytes count, as lower-case hex: ff for a byte that must match, 00 for one a link may change. The same length as bytes.",
+            "type": "string",
+            "pattern": "^([0-9a-f]{2})+$"
+          }
+        }
+      }
+    },
+    "problems": {
+      "description": "What was dropped while building the set, and why: functions too short to take a pattern from, patterns with too few fixed bytes, and patterns two functions shared.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+# Visual C++ 5.x, the toolset of Visual Studio 97. Its linker stamps 5.x in the optional header and
+# signs its own object with product id 0x0013 in the Rich header — `linker_5.12`, in the names the
+# table in src/Recon.Core/Pe/RichHeader.cs gives the Visual Studio 97-era ids.
+#
+# Measured, not assumed — every figure below was printed by `recon inspect producers` from a real
+# file on this machine:
+#
+#   VBA6.DLL (the Basic runtime from a Visual Studio 98 installation):
+#     linker version 5.12
+#     Rich header, XOR key 0xA4BA86CB, 970 objects of which 970 carry no product id:
+#       0x000E  masm_6.13    build 7299  count 9
+#       0x0013  linker_5.12  build 8078  count 1    <- the linker, and not the last record
+#       0x0006  cvtres_5.0   build 1735  count 1    <- the last record
+#   VB6.EXE, VB6IDE.DLL, msvbvm60.dll (Visual Basic 6.0, from the same installation):
+#     linker version 5.2, and no Rich header at all.
+#
+# Two things about that, and they are the reason this file has the shape it does:
+#
+#   * The three 5.2 files carry no Rich header, so a profile that demanded both the stamp and the
+#     product id would look at three real binaries it can name and report nothing. The two rules are
+#     therefore alternatives — either is evidence — which is how every profile here is written.
+#   * In VBA6.DLL the last Rich record is the resource converter, not the linker, so the linker is
+#     matched by product id and never by position.
+#
+# The files these were read from ship inside Visual Studio 98, whose Visual Basic components were
+# linked with this 5.x linker rather than the 6.0 one the C++ tools of the same release stamp; that
+# is what the numbers say, and it is the numbers this profile matches.
+#
+# No build range is written for the linker record: one build was measured here and a service pack
+# would bring another, so the rule matches the product id and leaves the build to the report.
+schema_version = 1
+id = "msvc-5"
+display_name = "Microsoft Visual C++ 5.x (Visual Studio 97)"
+family = "msvc"
+extends = "msvc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+# 5.12 in VBA6.DLL and 5.2 in VB6.EXE, VB6IDE.DLL and msvbvm60.dll. The range is the linker line,
+# not a guess at its service packs: 2, 12 and every number between are the same toolset.
+[[detect.linker_version]]
+min = "5.0"
+max = "5.99"
+
+# Product id 0x0013 is linker_5.12, the one measured here. 0x0002 and 0x0010 are the same linker at
+# 5.10 and 5.11 — named in RichHeader.LegacyProdIds, whose names were read out of real 1998-2004
+# binaries, but not carried by any file on this machine yet; they are written here because the rule
+# is about the linker line and not about one file, and noted so that a reader knows which is which.
+[[detect.rich_header]]
+id = 19
+role = "linker"
+
+[[detect.rich_header]]
+id = 2
+role = "linker"
+
+[[detect.rich_header]]
+id = 16
+role = "linker"
+
+[compile]
+exe = "bin/cl.exe"
+default_flags = ["/c", "/nologo", "/Zi"]
+include_flag = "/I{path}"
+define_flag = "/D{name}"
+output_flag = "/Fo{obj}"
+
+# No INCLUDE is written here, and that is deliberate: the path a Visual C++ 5 installation keeps its
+# headers in is not something this machine can read, and writing one from memory would put an
+# unverified directory into every build this profile drives. A profile may leave a path out; it may
+# not invent one.
+
+# As in every version of cl: /Od disables optimization, /O1 favours size, /O2 speed, /Ox is full
+# optimization. Separate flags rather than a level's argument, so they are listed and not templated.
+[compile.optimization]
+levels = ["/Od", "/O1", "/O2", "/Ox"]
+
+[link]
+exe = "bin/link.exe"
+default_flags = ["/nologo", "/DEBUG"]
+output_flag = "/OUT:{exe}"

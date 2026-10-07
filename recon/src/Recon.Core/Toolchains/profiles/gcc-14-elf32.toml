@@ -1,0 +1,48 @@
+# GCC 14 targeting 32-bit ELF (i386): the same compiler as gcc-14-elf64 with -m32, which is a
+# different ABI — 4-byte pointers, the 32-bit prologues, and cdecl rather than register arguments.
+# The corpus builds these when the multilib runtimes are installed.
+schema_version = 1
+id = "gcc-14-elf32"
+display_name = "GCC 14 (ELF, 32-bit x86)"
+family = "gcc"
+extends = "gcc-base"
+
+[[targets]]
+format = "elf32"
+arch = "x86"
+
+[abi]
+mangling = "itanium"
+default_cc = "cdecl"
+member_cc = "thiscall"
+pointer_size = 4
+
+[codegen]
+function_align = 16
+padding_bytes = [0x90, 0xCC]
+prologue_hints = ["push ebp; mov ebp, esp", "push ebx", "sub esp, imm"]
+
+[[detect.comment_section]]
+contains = "GCC: ("
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C17 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C11 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C++17 14"
+
+[[detect.import_dll]]
+contains = "libc.so"
+
+[compile]
+# -m32 is what makes this profile 32-bit; without it gcc would build for the host.
+exe = "gcc"
+default_flags = ["-c", "-g", "-O2", "-m32"]
+include_flag = "-I{path}"
+define_flag = "-D{name}"
+output_flag = "-o {obj}"
+
+[link]
+exe = "gcc"
+default_flags = ["-m32"]

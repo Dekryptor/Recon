@@ -1,0 +1,73 @@
+# GCC 14 targeting ELF on x86-64: the System V ABI, glibc and the GNU linker. This is the toolchain
+# that builds the tool's own ELF corpus (tools/build-elf-corpus.sh), and the one a Linux binary is
+# most often built with.
+#
+# It extends the GCC base, so the compare settings, the depfile flag and the DWARF debug format come
+# from there; what is different here is the target, the pointer size, the prologues a 64-bit compiler
+# emits, and the tool names — on a Linux box the compiler is on PATH, not in an install directory.
+schema_version = 1
+id = "gcc-14-elf64"
+display_name = "GCC 14 (ELF, x86-64)"
+family = "gcc"
+extends = "gcc-base"
+
+[[targets]]
+format = "elf64"
+arch = "x64"
+
+[abi]
+mangling = "itanium"
+# x86-64 System V passes the first six integer arguments in registers; none of the 32-bit
+# conventions describes it, so it has its own name.
+default_cc = "sysv"
+member_cc = "thiscall"
+pointer_size = 8
+
+[codegen]
+function_align = 16
+padding_bytes = [0x90, 0xCC]
+# A 64-bit frame starts this way when it keeps one; -O2 code usually does not and starts with the
+# callee-saved register it needs. endbr64 is the CET landing instruction every function of a
+# control-flow-enforced binary begins with.
+prologue_hints = [
+  "push rbp; mov rbp, rsp",
+  "push rbx",
+  "push r12",
+  "sub rsp, imm",
+  "endbr64",
+]
+
+# Debian and every other packager that rebuilds GCC put their own name in the comment string, so
+# the rule matches the part that is always there. The version comes from the DWARF producer.
+[[detect.comment_section]]
+contains = "GCC: ("
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C17 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C11 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C99 14"
+# C++ compilands name the language standard they used, and g++ 14 says C++17.
+[[detect.dwarf_producer]]
+producer_contains = "GNU C++17 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C++14 14"
+
+# ELF records the libraries it needs as DT_NEEDED, which the loader turns into import evidence.
+[[detect.import_dll]]
+contains = "libc.so"
+
+[[detect.section]]
+name = ".eh_frame"
+
+[compile]
+exe = "gcc"
+default_flags = ["-c", "-g", "-O2"]
+include_flag = "-I{path}"
+define_flag = "-D{name}"
+output_flag = "-o {obj}"
+
+[link]
+exe = "gcc"
+default_flags = []

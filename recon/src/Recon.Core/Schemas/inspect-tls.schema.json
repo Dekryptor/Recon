@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-tls-0.1.json",
+  "title": "TLS callbacks of an image",
+  "description": "One `recon inspect` subcommand's output: tls callbacks of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "callbacks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "callbacks": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

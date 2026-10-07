@@ -1,0 +1,47 @@
+# Visual C++ 2008 (toolset 9.0). Extends msvc-base; only the differences are listed.
+schema_version = 1
+id = "msvc-2008"
+display_name = "Microsoft Visual C++ 2008 (9.0)"
+family = "msvc"
+extends = "msvc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+# The optional header's linker version is a reliable, cheap version band.
+[[detect.linker_version]]
+min = "9.0"
+max = "9.99"
+
+# Runtime DLL names identify the toolset when a binary has no PDB.
+[[detect.import_dll]]
+contains = "msvcr90"
+[[detect.import_dll]]
+contains = "msvcp90"
+
+# The last Rich header entry is always the linker. NOTE: build numbers here are a starting point;
+# the product-id table for modern toolsets is a data question (see docs/toolchains.md).
+[[detect.rich_header]]
+role = "linker"
+tool = "link"
+build_min = 21022
+build_max = 30728
+
+[compile]
+exe = "bin/cl.exe"
+default_flags = ["/c", "/nologo", "/Zi"]
+include_flag = "/I{path}"
+define_flag = "/D{name}"
+output_flag = "/Fo{obj}"
+env = { INCLUDE = "{root}/include;{root}/atlmfc/include" }
+
+# /Od disables optimization, /O1 favours size, /O2 speed, /Ox is full optimization. They are separate
+# flags rather than a level's argument, which is why they are listed and not templated.
+[compile.optimization]
+levels = ["/Od", "/O1", "/O2", "/Ox"]
+
+[link]
+exe = "bin/link.exe"
+default_flags = ["/nologo", "/DEBUG"]
+output_flag = "/OUT:{exe}"

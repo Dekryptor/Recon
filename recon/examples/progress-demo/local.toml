@@ -1,0 +1,20 @@
+schema_version = 1
+
+# Machine-specific paths. This file is not committed.
+[inputs]
+dir = "../../tests/corpus/mingw"
+
+# Where the MinGW cross compiler lives on this machine. The profile names `bin/gcc.exe`, which is
+# right on Windows; on Linux the toolchain section of local.toml has the last word, which is how the
+# same profile builds here.
+[toolchain.gcc-13-mingw]
+root = "/usr"
+cc = "/usr/bin/i686-w64-mingw32-gcc"
+link = "/usr/bin/i686-w64-mingw32-gcc"
+
+# The same compiler under the generation that compiled the corpus's own code: the binary links
+# runtime objects built by the older one, and detection names the newer.
+[toolchain.gcc-14-mingw]
+root = "/usr"
+cc = "/usr/bin/i686-w64-mingw32-gcc"
+link = "/usr/bin/i686-w64-mingw32-gcc"

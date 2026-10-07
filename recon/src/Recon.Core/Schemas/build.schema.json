@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/build-0.1.json",
+  "title": "Recon build manifest",
+  "description": "What `recon build` did: the units it compiled, with which toolchain and which flags, the cache key and reason for each one, and the linked image. This file is read back on the next run, so it is both the report and the cache. Paths are relative to the project root.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generator",
+    "project",
+    "settings",
+    "toolchains",
+    "units",
+    "summary",
+    "warnings",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "root", "project_file"],
+      "properties": {
+        "name": { "type": "string" },
+        "root": { "type": "string" },
+        "project_file": { "type": "string" }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jobs", "force", "keep_going", "dry_run", "output"],
+      "properties": {
+        "jobs": { "type": "integer", "minimum": 1 },
+        "force": { "type": "boolean" },
+        "keep_going": { "type": "boolean" },
+        "dry_run": { "type": "boolean" },
+        "output": { "type": "string" }
+      }
+    },
+    "toolchains": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/toolchain" }
+    },
+    "units": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unit" }
+    },
+    "link": {
+      "$ref": "#/$defs/link"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "problems": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": { "type": "string" },
+        "version": { "type": "string" },
+        "command": { "type": ["string", "null"] },
+        "generated_at": { "type": ["string", "null"] }
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "cover": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "symbol": { "type": ["string", "null"] },
+        "rva": { "type": ["integer", "null"], "minimum": 0 },
+        "size": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": ["string", "null"] }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "family", "cc", "link", "wine", "fingerprint", "problems"],
+      "properties": {
+        "id": { "type": "string" },
+        "family": { "type": "string" },
+        "root": { "type": ["string", "null"] },
+        "cc": { "type": "string" },
+        "link": { "type": "string" },
+        "wine": { "type": "boolean" },
+        "fingerprint": { "type": "string" },
+        "problems": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "source",
+        "object",
+        "toolchain",
+        "provider",
+        "status",
+        "flags",
+        "defines",
+        "includes",
+        "cache_key",
+        "cached",
+        "cache_reason",
+        "inputs",
+        "dependencies",
+        "covers",
+        "result",
+        "duration_ms",
+        "diagnostics"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "source": { "type": "string" },
+        "object": { "type": "string" },
+        "toolchain": { "type": "string" },
+        "provider": { "enum": ["rebuilt", "original"] },
+        "status": {
+          "enum": ["not_started", "wip", "matched", "approx", "library", "skip"]
+        },
+        "flags": { "$ref": "#/$defs/stringList" },
+        "defines": { "$ref": "#/$defs/stringList" },
+        "includes": { "$ref": "#/$defs/stringList" },
+        "cache_key": { "type": "string" },
+        "cached": { "type": "boolean" },
+        "cache_reason": { "type": "string" },
+        "inputs": {
+          "type": "object",
+          "description": "The sub-hashes the cache key is made of: source, toolchain, flags, defines, includes, dependencies.",
+          "additionalProperties": { "type": "string" }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/dependency" }
+        },
+        "covers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/cover" }
+        },
+        "result": {
+          "enum": ["cached", "compiled", "failed", "skipped", "original", "planned"]
+        },
+        "exit_code": { "type": ["integer", "null"] },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "diagnostics": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output", "executable", "arguments", "result", "duration_ms", "diagnostics"],
+      "properties": {
+        "output": { "type": "string" },
+        "executable": { "type": "string" },
+        "arguments": { "$ref": "#/$defs/stringList" },
+        "result": { "enum": ["linked", "failed", "skipped", "cached", "planned"] },
+        "exit_code": { "type": ["integer", "null"] },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "diagnostics": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "units",
+        "compiled",
+        "cached",
+        "failed",
+        "skipped",
+        "duration_ms",
+        "ok",
+        "output"
+      ],
+      "properties": {
+        "units": { "type": "integer", "minimum": 0 },
+        "compiled": { "type": "integer", "minimum": 0 },
+        "cached": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "ok": { "type": "boolean" },
+        "output": { "type": "string" },
+        "output_size": { "type": ["integer", "null"], "minimum": 0 },
+        "output_sha256": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

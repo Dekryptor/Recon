@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/migrate-0.1.json",
+  "title": "Migrate document",
+  "description": "What `recon migrate` found: every configuration file, the schema version it carries, and whether that is the version this build writes.",
+  "type": "object",
+  "required": ["schema_version", "current_version", "write_requested", "rewritten", "files", "outdated"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "command": { "type": "string" },
+    "tool_version": { "type": "string" },
+    "current_version": { "type": "integer", "minimum": 0 },
+    "write_requested": { "type": "boolean", "description": "Whether --write was given: the caller asked for files to be rewritten." },
+    "rewritten": { "type": "integer", "minimum": 0, "description": "How many files were actually rewritten. Zero in this build: no migration path is defined yet." },
+    "outdated": { "type": "integer", "minimum": 0, "description": "How many files are not at the current version." },
+    "message": { "type": "string", "description": "What to do about it, when there is something to do." },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind", "schema_version", "current"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "kind": { "type": "string", "enum": ["project", "local", "profile"] },
+          "schema_version": { "type": "integer", "minimum": 0 },
+          "current": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

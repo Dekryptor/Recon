@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>recon — diff viewer</title>
+<style>
+  :root {
+    --bg: #16181d; --panel: #1d2027; --panel2: #23262e; --line: #2f333d;
+    --fg: #d7dae0; --dim: #8b93a1; --accent: #6cb6ff;
+    --exact: #3fb950; --changed: #d29922; --missing: #f85149; --added: #3fb950; --removed: #f85149;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  header {
+    border-bottom: 1px solid var(--line); background: var(--panel);
+    padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 18px; align-items: baseline;
+  }
+  header h1 { font-size: 14px; margin: 0 8px 0 0; font-weight: 600; letter-spacing: .02em; }
+  header .sub { color: var(--dim); font-size: 12px; }
+  .metric { display: flex; flex-direction: column; }
+  .metric b { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .metric span { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .bar { height: 6px; background: var(--panel2); border-radius: 3px; overflow: hidden; margin-top: 4px; width: 160px; }
+  .bar i { display: block; height: 100%; background: var(--exact); }
+  nav { display: flex; gap: 4px; border-bottom: 1px solid var(--line); background: var(--panel); padding: 0 12px; }
+  nav button {
+    background: none; border: none; border-bottom: 2px solid transparent; color: var(--dim);
+    padding: 8px 12px; cursor: pointer; font: inherit;
+  }
+  nav button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+  main { flex: 1; min-height: 0; display: flex; }
+  .view { flex: 1; min-height: 0; display: none; }
+  .view[data-active="true"] { display: flex; }
+
+  /* ---- functions view ---- */
+  #functions { display: flex; width: 100%; }
+  #list {
+    width: 340px; min-width: 240px; max-width: 60%; border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; background: var(--panel); resize: horizontal; overflow: hidden;
+  }
+  .toolbar { padding: 8px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+  .toolbar input, .toolbar select {
+    background: var(--panel2); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 4px; padding: 5px 7px; font: inherit; width: 100%;
+  }
+  .toolbar .row { display: flex; gap: 6px; }
+  #rows { overflow-y: auto; flex: 1; }
+  .item {
+    padding: 6px 10px; border-bottom: 1px solid var(--line); cursor: pointer;
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 8px;
+  }
+  .item:hover { background: var(--panel2); }
+  .item[data-selected="true"] { background: #24303f; }
+  .item .name { font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .meta { color: var(--dim); font-size: 11px; grid-column: 1 / -1; display: flex; gap: 10px; }
+  .badge {
+    font-size: 10px; padding: 1px 6px; border-radius: 8px; text-transform: uppercase;
+    letter-spacing: .05em; align-self: center; white-space: nowrap;
+  }
+  .badge.exact { background: #1b3a24; color: var(--exact); }
+  .badge.changed { background: #3a2f14; color: var(--changed); }
+  .badge.only_left, .badge.only_right { background: #3d1d1d; color: var(--missing); }
+  .badge.folded { background: #2a2440; color: #a371f7; }
+
+  #detail { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  #detail header {
+    border: none; border-bottom: 1px solid var(--line); background: var(--panel2);
+    padding: 8px 14px; gap: 14px;
+  }
+  #detail .title { font-family: var(--mono); font-size: 13px; }
+  #listing { overflow: auto; flex: 1; font-family: var(--mono); font-size: 12px; }
+  table.listing { width: 100%; border-collapse: collapse; }
+  table.listing td { padding: 1px 6px; white-space: pre; vertical-align: top; }
+  table.listing td.rva { color: var(--dim); text-align: right; width: 1%; user-select: none; }
+  table.listing tr.equal td.l, table.listing tr.equal td.r { color: var(--dim); }
+  table.listing tr.changed td.l, table.listing tr.changed td.r { color: #ffd479; background: #2a2416; }
+  table.listing tr.added td.r { color: var(--added); background: #16291b; }
+  table.listing tr.removed td.l { color: var(--removed); background: #2b1616; }
+  table.listing tr.diffrow td { color: #ffb0a8; background: #2b1616; }
+  table.listing tr.diffrow td.kind { color: var(--dim); text-transform: uppercase; font-size: 10px; }
+  .empty { color: var(--dim); padding: 16px; }
+  .note { color: var(--dim); font-size: 12px; padding: 4px 14px; background: var(--panel2); border-bottom: 1px solid var(--line); }
+
+  /* ---- progress view ---- */
+  #progress { flex-direction: column; overflow: auto; padding: 16px; gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+  .card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 0 0 10px; }
+  table.grid { width: 100%; border-collapse: collapse; }
+  table.grid th, table.grid td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  table.grid th:first-child, table.grid td:first-child { text-align: left; font-family: var(--mono); }
+  table.grid th { color: var(--dim); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  .cellbar { position: relative; height: 14px; background: var(--panel2); border-radius: 3px; min-width: 90px; }
+  .cellbar i { position: absolute; inset: 0 auto 0 0; background: var(--exact); border-radius: 3px; }
+  .cellbar span { position: absolute; inset: 0; text-align: center; font-size: 10px; line-height: 14px; color: var(--fg); }
+  #treemap { position: relative; height: 340px; background: var(--panel2); border-radius: 4px; overflow: hidden; }
+  #treemap .tile { position: absolute; overflow: hidden; border: 1px solid var(--bg); cursor: pointer; }
+  #treemap .tile span { font-size: 10px; padding: 2px 3px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #tip {
+    position: fixed; pointer-events: none; background: #0d0f13; border: 1px solid var(--line);
+    padding: 4px 7px; border-radius: 4px; font-family: var(--mono); font-size: 11px; display: none; z-index: 10;
+  }
+  .legend { display: flex; gap: 14px; color: var(--dim); font-size: 11px; margin-top: 8px; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>recon</h1>
+  <span class="sub" id="subtitle">loading…</span>
+  <div class="metric"><b id="m-score">–</b><span>score</span><div class="bar"><i id="m-score-bar" style="width:0"></i></div></div>
+  <div class="metric"><b id="m-exact">–</b><span>instruction&nbsp;exact</span><div class="bar"><i id="m-exact-bar" style="width:0"></i></div></div>
+  <div class="metric"><b id="m-verified">–</b><span>verified</span><div class="bar"><i id="m-verified-bar" style="width:0"></i></div></div>
+  <div class="metric"><b id="m-funcs">–</b><span>functions</span></div>
+  <div class="metric"><b id="m-units">–</b><span>units</span></div>
+</header>
+
+<nav>
+  <button id="tab-functions" aria-selected="true">Functions</button>
+  <button id="tab-progress" aria-selected="false">Progress</button>
+</nav>
+
+<main>
+  <section class="view" id="functions" data-active="true">
+    <div id="list">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="filter by name (regex or text)" autocomplete="off">
+        <div class="row">
+          <select id="status">
+            <option value="">all statuses</option>
+            <option value="changed">changed</option>
+            <option value="exact">exact</option>
+            <option value="only_left">only in original</option>
+            <option value="only_right">only in rebuild</option>
+            <option value="folded">folded</option>
+          </select>
+          <select id="sort">
+            <option value="rva">by address</option>
+            <option value="diffs">by differences</option>
+            <option value="size">by size</option>
+          </select>
+        </div>
+      </div>
+      <div id="rows"></div>
+    </div>
+    <div id="detail">
+      <header>
+        <span class="title" id="d-title">no function selected</span>
+        <span class="sub" id="d-meta"></span>
+      </header>
+      <div class="note" id="d-note" hidden></div>
+      <div id="listing"><div class="empty">Select a function on the left.</div></div>
+    </div>
+  </section>
+
+  <section class="view" id="progress">
+    <div class="card">
+      <h2>Progress by unit</h2>
+      <table class="grid" id="unit-table"></table>
+    </div>
+    <div class="card">
+      <h2>Where the original's instructions are</h2>
+      <div id="treemap"></div>
+      <div class="legend">
+        <span><i style="background:var(--exact)"></i>exact</span>
+        <span><i style="background:var(--changed)"></i>changed</span>
+        <span><i style="background:var(--missing)"></i>no counterpart</span>
+        <span><i style="background:#3d4450"></i>not covered by a unit</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>History</h2>
+      <table class="grid" id="history-table"></table>
+    </div>
+  </section>
+</main>
+
+<div id="tip"></div>
+
+<script>
+/* The viewer runs in two shapes: with the documents embedded (a static report, no server needed)
+   or fetching them from the tool's own server. Either way the markup and the code are the same. */
+/*__BOOTSTRAP__*/
+const BOOT = window.__RECON__ || null;
+const API = window.__RECON_API__ || null;
+
+const el = (id) => document.getElementById(id);
+const esc = (s) => (s == null ? '' : String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
+const pct = (x) => (x == null ? '–' : (100 * x).toFixed(x < 0.1 ? 2 : 1) + '%');
+const hex = (n) => (n == null ? '' : '0x' + Number(n).toString(16).toUpperCase().padStart(4, '0'));
+
+let STATE = { comparison: null, progress: null, functions: [], selected: null, covered: new Set() };
+
+async function load() {
+  if (BOOT) return BOOT;
+  const [comparison, progress] = await Promise.all([
+    fetch(API.comparison).then((r) => r.json()),
+    fetch(API.progress).then((r) => r.json()),
+  ]);
+  return { comparison, progress };
+}
+
+function indexFunctions(comparison, progress) {
+  const rows = comparison.functions.map((f) => {
+    const side = f.left || f.right || {};
+    return {
+      raw: f,
+      id: side.id || '',
+      name: side.name || hex(side.rva) || '(unnamed)',
+      rva: side.rva || 0,
+      size: side.size || 0,
+      status: f.status,
+      score: f.score,
+      left: f.instructions.left,
+      right: f.instructions.right,
+      equal: f.instructions.equal,
+      diffs: (f.differences || []).length,
+    };
+  });
+  return rows;
+}
+
+function coveredIds(progress) {
+  const ids = new Set();
+  const byName = new Map(STATE.functions.map((f) => [f.name, f]));
+  for (const unit of progress.units || []) {
+    for (const cover of unit.covers || []) {
+      if (cover.symbol && byName.has(cover.symbol)) ids.add(byName.get(cover.symbol).id);
+    }
+  }
+  return ids;
+}
+
+// ------------------------------------------------------------------ header
+
+function renderHeader() {
+  const t = STATE.progress.totals;
+  el('subtitle').textContent =
+    `${STATE.progress.project.name} — ${STATE.comparison.left.label || 'original'} vs ` +
+    `${STATE.comparison.right.label || 'rebuild'}`;
+  el('m-score').textContent = pct(t.similarity);
+  el('m-score-bar').style.width = (100 * t.similarity) + '%';
+  el('m-exact').textContent = pct(t.instruction_exact);
+  el('m-exact-bar').style.width = (100 * t.instruction_exact) + '%';
+  el('m-verified').textContent = pct(t.verified);
+  el('m-verified-bar').style.width = (100 * t.verified) + '%';
+  el('m-funcs').textContent = `${t.functions_exact}/${t.functions_original} exact`;
+  el('m-units').textContent = (STATE.progress.units || []).length;
+}
+
+// ------------------------------------------------------------------ function list
+
+function visible() {
+  const query = el('search').value.trim();
+  const status = el('status').value;
+  const sort = el('sort').value;
+  let rows = STATE.functions;
+  if (status) rows = rows.filter((f) => f.status === status);
+  if (query) {
+    let re = null;
+    try { re = new RegExp(query, 'i'); } catch (e) { re = null; }
+    rows = rows.filter((f) => (re ? re.test(f.name) : f.name.toLowerCase().includes(query.toLowerCase())));
+  }
+  const order = { diffs: (a, b) => b.diffs - a.diffs || a.rva - b.rva,
+                  size: (a, b) => b.left - a.left || a.rva - b.rva,
+                  rva: (a, b) => a.rva - b.rva }[sort];
+  return rows.slice().sort(order);
+}
+
+const CHUNK = 250;
+let shown = 0;
+
+function renderList(reset) {
+  const rows = visible();
+  const container = el('rows');
+  if (reset) { container.innerHTML = ''; shown = 0; }
+  const slice = rows.slice(shown, shown + CHUNK);
+  for (const f of slice) {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.dataset.id = f.id;
+    div.innerHTML =
+      `<div class="name" title="${esc(f.name)}">${esc(f.name)}</div>` +
+      `<div class="badge ${esc(f.status)}">${esc(f.status.replace('_', ' '))}</div>` +
+      `<div class="meta"><span>${hex(f.rva)}</span><span>${f.left} instr</span>` +
+      `<span>${f.diffs} diff</span><span>${pct(f.score)}</span></div>`;
+    div.onclick = () => select(f);
+    container.appendChild(div);
+  }
+  shown += slice.length;
+  if (shown < rows.length) {
+    const more = document.createElement('div');
+    more.className = 'empty';
+    more.textContent = `${shown} of ${rows.length} shown — scroll for more`;
+    more.id = 'more';
+    container.appendChild(more);
+  }
+  highlight();
+}
+
+el('rows').addEventListener('scroll', () => {
+  const more = el('more');
+  if (!more) return;
+  if (more.offsetTop - el('rows').scrollTop < el('rows').clientHeight + 100) {
+    more.remove();
+    renderList(false);
+  }
+});
+
+function highlight() {
+  for (const node of el('rows').children) {
+    node.dataset.selected = STATE.selected && node.dataset.id === STATE.selected.id ? 'true' : 'false';
+  }
+}
+
+// ------------------------------------------------------------------ detail
+
+async function select(f) {
+  STATE.selected = f;
+  highlight();
+  el('d-title').textContent = f.name;
+  el('d-meta').textContent =
+    `${f.status} · ${hex(f.rva)} · ${f.left}/${f.right} instructions · ${f.equal} equal · score ${pct(f.score)}`;
+  const listing = el('listing');
+  listing.innerHTML = '<div class="empty">Aligning…</div>';
+
+  let aligned = f.raw.aligned;
+  if (!aligned && API) {
+    try {
+      aligned = (await fetch(API.aligned + encodeURIComponent(f.id)).then((r) => r.json())).rows || null;
+    } catch (e) { aligned = null; }
+  }
+
+  if (aligned && aligned.length) {
+    listing.innerHTML =
+      '<table class="listing">' + aligned.map((row) =>
+        `<tr class="${esc(row.status)}">` +
+        `<td class="rva">${row.left_rva == null ? '' : hex(row.left_rva)}</td>` +
+        `<td class="l">${esc(row.left_text || '')}</td>` +
+        `<td class="rva">${row.right_rva == null ? '' : hex(row.right_rva)}</td>` +
+        `<td class="r">${esc(row.right_text || '')}</td></tr>`).join('') + '</table>';
+  } else {
+    const diffs = f.raw.differences || [];
+    const note = el('d-note');
+    note.hidden = false;
+    note.textContent = aligned === null && !BOOT
+      ? 'Per-instruction alignment is not available for this function; showing the recorded differences.'
+      : `${diffs.length} difference(s) recorded` + (diffs.length >= (STATE.comparison.model.difference_limit || 0)
+          ? ` (the comparison stopped at its difference limit of ${STATE.comparison.model.difference_limit})` : '');
+    listing.innerHTML = diffs.length
+      ? '<table class="listing">' + diffs.map((d) =>
+          `<tr class="diffrow"><td class="kind">${esc(d.kind)}</td>` +
+          `<td class="rva">${d.left_rva == null ? '' : hex(d.left_rva)}</td>` +
+          `<td class="l">${esc(d.left_text || '')}</td>` +
+          `<td class="rva">${d.right_rva == null ? '' : hex(d.right_rva)}</td>` +
+          `<td class="r">${esc(d.right_text || '')}</td></tr>`).join('') + '</table>'
+      : '<div class="empty">No differences recorded — this pair is instruction-exact.</div>';
+  }
+  if (f.raw.notes && f.raw.notes.length) {
+    const note = el('d-note');
+    note.hidden = false;
+    note.textContent = (note.textContent ? note.textContent + ' · ' : '') + f.raw.notes.join(' · ');
+  }
+}
+
+// ------------------------------------------------------------------ progress
+
+function renderProgress() {
+  const units = STATE.progress.units || [];
+  const table = el('unit-table');
+  table.innerHTML =
+    '<tr><th>unit</th><th>status</th><th>functions</th><th>instructions</th><th>equal</th><th>missing</th><th>progress</th></tr>' +
+    units.map((u) => {
+      const bar = `<div class="cellbar"><i style="width:${100 * (u.progress || 0)}%"></i><span>${pct(u.progress)}</span></div>`;
+      return `<tr><td>${esc(u.name)}</td><td>${esc(u.status)}</td><td>${u.functions.total} (${u.functions.equal} exact)</td>` +
+             `<td>${u.instructions.total}</td><td>${u.instructions.equal}</td><td>${u.instructions.missing}</td><td>${bar}</td></tr>`;
+    }).join('') +
+    `<tr><td><i>not covered by any unit</i></td><td></td><td>${STATE.progress.uncovered.total}</td>` +
+    `<td>${STATE.progress.uncovered.total ? '' : 0}</td><td>${STATE.progress.uncovered.equal}</td>` +
+    `<td>${STATE.progress.uncovered.missing}</td><td></td></tr>`;
+
+  const history = STATE.progress.history || [];
+  el('history-table').innerHTML = history.length
+    ? '<tr><th>when</th><th>score</th><th>equal instructions</th><th>exact functions</th></tr>' +
+      history.slice(-12).reverse().map((h) =>
+        `<tr><td>${esc(h.at.replace('T', ' ').slice(0, 19))}</td><td>${pct(h.score)}</td>` +
+        `<td>${h.instructions_equal}/${h.instructions_original}</td><td>${h.functions_exact}/${h.functions_original}</td></tr>`).join('')
+    : '<tr><td>no history recorded yet — set <code>[report] history = true</code> and run <code>recon report</code> again</td></tr>';
+
+  drawTreemap();
+}
+
+/* Squarified treemap: one tile per function, sized by its instruction count and coloured by status.
+   Uncovered functions are drawn last, in grey, so "nobody's work yet" is visible at a glance. */
+function drawTreemap() {
+  const box = el('treemap');
+  box.innerHTML = '';
+  const W = box.clientWidth || 800;
+  const H = box.clientHeight || 340;
+  const items = STATE.functions
+    .map((f) => ({ f, size: Math.max(f.left, f.right, 1), covered: STATE.covered.has(f.id) }))
+    .sort((a, b) => b.size - a.size);
+  const total = items.reduce((s, i) => s + i.size, 0) || 1;
+
+  let x = 0, y = 0, w = W, h = H;
+  for (const item of items) {
+    const area = (item.size / total) * W * H;
+    let rowH = Math.min(w, h);
+    // Lay the item out as a row along the shorter side of what is left.
+    if (w >= h) {
+      const rw = Math.max(area / h, 2);
+      if (rw > w) rw = w;
+      place(x, y, rw, h, item); x += rw; w -= rw;
+    } else {
+      const rh = Math.max(area / w, 2);
+      if (rh > h) rh = h;
+      place(x, y, w, rh, item); y += rh; h -= rh;
+    }
+    if (w < 2 || h < 2) break;
+  }
+
+  function place(px, py, pw, ph, item) {
+    const div = document.createElement('div');
+    div.className = 'tile';
+    div.style.left = px + 'px'; div.style.top = py + 'px';
+    div.style.width = Math.max(pw - 1, 0) + 'px'; div.style.height = Math.max(ph - 1, 0) + 'px';
+    const status = item.f.status;
+    div.style.background = item.covered
+      ? (status === 'exact' ? '#1e4628' : status === 'changed' ? '#4a3a12' : '#4a1d1d')
+      : '#3d4450';
+    if (pw > 40 && ph > 14) div.innerHTML = `<span>${esc(item.f.name)}</span>`;
+    div.onmousemove = (e) => {
+      const tip = el('tip');
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 12) + 'px';
+      tip.style.top = (e.clientY + 12) + 'px';
+      tip.innerHTML = `${esc(item.f.name)}<br>${hex(item.f.rva)} · ${item.f.left} instr · ${esc(status)}` +
+        (item.covered ? '' : ' · not covered by a unit');
+    };
+    div.onmouseleave = () => { el('tip').style.display = 'none'; };
+    div.onclick = () => { activate('functions'); select(item.f); };
+    box.appendChild(div);
+  }
+  rowH = null;
+}
+
+// ------------------------------------------------------------------ wiring
+
+function activate(which) {
+  el('tab-functions').setAttribute('aria-selected', String(which === 'functions'));
+  el('tab-progress').setAttribute('aria-selected', String(which === 'progress'));
+  el('functions').dataset.active = String(which === 'functions');
+  el('progress').dataset.active = String(which === 'progress');
+  if (which === 'progress') { renderProgress(); }
+}
+
+el('tab-functions').onclick = () => activate('functions');
+el('tab-progress').onclick = () => activate('progress');
+el('search').oninput = () => renderList(true);
+el('status').onchange = () => renderList(true);
+el('sort').onchange = () => renderList(true);
+window.addEventListener('resize', () => { if (el('progress').dataset.active === 'true') drawTreemap(); });
+
+load().then((data) => {
+  STATE.comparison = data.comparison;
+  STATE.progress = data.progress;
+  STATE.functions = indexFunctions(data.comparison, data.progress);
+  STATE.covered = coveredIds(data.progress);
+  renderHeader();
+  renderList(true);
+  const worst = visible().find((f) => f.diffs > 0) || STATE.functions[0];
+  if (worst) select(worst);
+}).catch((e) => {
+  el('subtitle').textContent = 'failed to load: ' + e.message;
+});
+</script>
+</body>
+</html>

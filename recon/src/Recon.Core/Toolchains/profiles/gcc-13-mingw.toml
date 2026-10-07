@@ -1,0 +1,37 @@
+# GCC 13 for 32-bit Windows (MinGW-w64). MinGW distributions ship runtime objects built with an older
+# GCC than the one that compiles user code, so a binary regularly contains both generations. Without
+# this profile those compilands stay unattributed and the producer report says so on every run.
+schema_version = 1
+id = "gcc-13-mingw"
+display_name = "GCC 13 (MinGW-w64, 32-bit)"
+family = "gcc"
+extends = "gcc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+[[detect.comment_section]]
+contains = "GCC: (GNU) 13"
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C17 13"
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C11 13"
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C++17 13"
+
+[compile]
+exe = "bin/gcc.exe"
+default_flags = ["-c", "-g", "-O2"]
+include_flag = "-I{path}"
+define_flag = "-D{name}"
+output_flag = "-o {obj}"
+
+# --no-insert-timestamp keeps the image byte-stable across runs: a linker that stamps its output
+# would make every rebuild look different, which is noise a reconstruction cannot afford.
+[link]
+exe = "bin/gcc.exe"
+default_flags = ["-Wl,--no-insert-timestamp"]

@@ -1,0 +1,49 @@
+# Path: tests/corpus/macho/sample-macho64-debug
+# Arch: x86_64
+# Object files:
+[  0] linker synthesized
+[  1] /tmp/tmp.9u7f2rXkdw/sample-macho64-debug.o
+# Sections:
+# Address	Size    	Segment	Section
+0x1000005F0	0x000003BB	__TEXT	__text
+0x1000009AC	0x0000000C	__TEXT	__stubs
+0x1000009B8	0x00000024	__TEXT	__stub_helper
+0x1000009DC	0x00000024	__TEXT	__cstring
+0x100000A00	0x00001038	__TEXT	__unwind_info
+0x100001A38	0x00000018	__TEXT	__eh_frame
+0x100002000	0x00000010	__DATA_CONST	__got
+0x100003000	0x00000010	__DATA	__la_symbol_ptr
+0x100003010	0x00000038	__DATA	__data
+0x100003048	0x00000004	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x1000005F0	0x00000020	[  1] _add
+0x100000610	0x00000020	[  1] _mul_std
+0x100000630	0x00000020	[  1] _sub_fast
+0x100000650	0x00000130	[  1] _dispatch
+0x100000780	0x00000050	[  1] _fib
+0x1000007D0	0x00000060	[  1] _loop_sum
+0x100000830	0x00000020	[  1] _bump
+0x100000850	0x00000040	[  1] _fail
+0x100000890	0x00000030	[  1] _use_twins
+0x1000008C0	0x00000010	[  1] _twin_a
+0x1000008D0	0x00000010	[  1] _twin_b
+0x1000008E0	0x000000CB	[  1] _main
+0x1000009AC	0x00000006	[  0] _fprintf
+0x1000009B2	0x00000006	[  0] _printf
+0x1000009B8	0x00000024	[  0] helper helper
+0x1000009DC	0x00000007	[  1] literal string: corpus
+0x1000009E3	0x00000008	[  1] literal string: %s: %s\n
+0x1000009EB	0x0000000B	[  1] literal string: impossible
+0x1000009F6	0x0000000A	[  1] literal string: %d %d %s\n
+0x100000A00	0x00001038	[  0] compact unwind info
+0x100001A38	0x00000018	[  1] EH_Frame
+0x100002000	0x00000008	[  0] non-lazy-pointer-to-local: _stderr
+0x100002008	0x00000008	[  0] non-lazy-pointer-to-local: dyld_stub_binder
+0x100003000	0x00000008	[  0] _fprintf
+0x100003008	0x00000008	[  0] _printf
+0x100003010	0x00000020	[  1] _g_table
+0x100003030	0x00000008	[  1] _g_message
+0x100003038	0x00000004	[  1] _s_internal
+0x100003040	0x00000000	[  0] __dyld_private
+0x100003048	0x00000004	[  1] _g_counter

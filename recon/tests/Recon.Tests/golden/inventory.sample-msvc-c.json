@@ -1,0 +1,1566 @@
+{
+  "schema_version": "0.1",
+  "generator": {
+    "tool": "recon",
+    "version": "1.0.0",
+    "command": null
+  },
+  "project": {
+    "name": "corpus-sample",
+    "root": "\u003Cproject\u003E",
+    "project_file": "\u003Cproject\u003E/project.toml"
+  },
+  "binary": {
+    "format": "pe32",
+    "arch": "x86",
+    "isa": "x86",
+    "sha256": "81df91313b27a9731732601ace7ca64d71dc650d1e8801cfd00f5a9923d1a710",
+    "file": "sample.exe",
+    "image_base": 4194304,
+    "entry_rva": 4448,
+    "size_of_image": 20480,
+    "subsystem": 3,
+    "dll": false,
+    "linker_version": "14.0",
+    "timestamp": 0,
+    "has_relocations": true,
+    "tls_callbacks": [],
+    "debug": {
+      "kind": "pdb",
+      "sources": [
+        "pdb"
+      ],
+      "path": "\u003Crepo\u003E/tests/corpus/msvc/sample.pdb",
+      "sha256": "aeadc9ab5c8ff382c8c91388734cc5f15537476d20b50dd01d261a27372506ef",
+      "guid": "7ada2b84-2276-974b-4c4c-44205044422e",
+      "age": 1,
+      "embedded_path": "\u003Crepo\u003E/tests/corpus/msvc/sample.pdb",
+      "matches_binary": true,
+      "symbols": 17,
+      "functions": 14,
+      "compilands": 2
+    },
+    "producers": [
+      {
+        "kind": "linker_version",
+        "tool": "link",
+        "version": "14.0",
+        "detail": "optional header MajorLinkerVersion.MinorLinkerVersion = 14.0",
+        "matches": []
+      },
+      {
+        "kind": "pdb_compiland",
+        "tool": "compiler",
+        "detail": "Debian clang version 19.1.7 (3\u002Bb1)",
+        "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+        "matches": [
+          "clang-19-msvc"
+        ]
+      },
+      {
+        "kind": "pdb_compiland",
+        "tool": "compiler",
+        "detail": "LLVM Linker",
+        "unit": "* Linker *",
+        "matches": [
+          "clang-19-msvc"
+        ]
+      },
+      {
+        "kind": "section",
+        "tool": "link",
+        "detail": "present: .text",
+        "matches": []
+      },
+      {
+        "kind": "section",
+        "tool": "link",
+        "detail": "present: .rdata",
+        "matches": []
+      },
+      {
+        "kind": "section",
+        "tool": "link",
+        "detail": "present: .data",
+        "matches": []
+      },
+      {
+        "kind": "section",
+        "tool": "link",
+        "detail": "present: .reloc",
+        "matches": []
+      }
+    ],
+    "toolchain_suggestions": [
+      {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "scope": "binary",
+        "evidence": [
+          "pdb_compiland"
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "name": ".text",
+      "rva": 4096,
+      "virtual_size": 498,
+      "raw_size": 512,
+      "raw_offset": 1024,
+      "characteristics": "0x60000020",
+      "flags": [
+        "code",
+        "exec",
+        "read"
+      ],
+      "code": true
+    },
+    {
+      "name": ".rdata",
+      "rva": 8192,
+      "virtual_size": 142,
+      "raw_size": 512,
+      "raw_offset": 1536,
+      "characteristics": "0x40000040",
+      "flags": [
+        "data",
+        "read"
+      ],
+      "code": false
+    },
+    {
+      "name": ".data",
+      "rva": 12288,
+      "virtual_size": 72,
+      "raw_size": 512,
+      "raw_offset": 2048,
+      "characteristics": "0xC0000040",
+      "flags": [
+        "data",
+        "read",
+        "write"
+      ],
+      "code": false
+    },
+    {
+      "name": ".reloc",
+      "rva": 16384,
+      "virtual_size": 100,
+      "raw_size": 512,
+      "raw_offset": 2560,
+      "characteristics": "0x42000040",
+      "flags": [
+        "data",
+        "read",
+        "discardable"
+      ],
+      "code": false
+    }
+  ],
+  "imports": [],
+  "exports": [],
+  "relocations": [
+    {
+      "rva": 4156,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4202496,
+      "target_rva": 8192,
+      "in_function": "f_001030",
+      "in_data": null
+    },
+    {
+      "rva": 4191,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206624,
+      "target_rva": 12320,
+      "in_function": "f_001030",
+      "in_data": null
+    },
+    {
+      "rva": 4221,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206592,
+      "target_rva": 12288,
+      "in_function": "f_001030",
+      "in_data": null
+    },
+    {
+      "rva": 4227,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206596,
+      "target_rva": 12292,
+      "in_function": "f_001030",
+      "in_data": null
+    },
+    {
+      "rva": 4364,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206596,
+      "target_rva": 12292,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4370,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206600,
+      "target_rva": 12296,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4376,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206604,
+      "target_rva": 12300,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4382,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206608,
+      "target_rva": 12304,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4408,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206596,
+      "target_rva": 12292,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4417,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206660,
+      "target_rva": 12356,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4426,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206660,
+      "target_rva": 12356,
+      "in_function": "f_0010d0",
+      "in_data": null
+    },
+    {
+      "rva": 4460,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206600,
+      "target_rva": 12296,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4466,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206596,
+      "target_rva": 12292,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4472,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206604,
+      "target_rva": 12300,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4478,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206608,
+      "target_rva": 12304,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4484,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206612,
+      "target_rva": 12308,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4490,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206616,
+      "target_rva": 12312,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4496,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206620,
+      "target_rva": 12316,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4502,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206624,
+      "target_rva": 12320,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4508,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206628,
+      "target_rva": 12324,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4514,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206632,
+      "target_rva": 12328,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4520,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206636,
+      "target_rva": 12332,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4526,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206640,
+      "target_rva": 12336,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4532,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206644,
+      "target_rva": 12340,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4538,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206648,
+      "target_rva": 12344,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4544,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206652,
+      "target_rva": 12348,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4550,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206656,
+      "target_rva": 12352,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4556,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206660,
+      "target_rva": 12356,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 4581,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4206660,
+      "target_rva": 12356,
+      "in_function": "f_001160",
+      "in_data": null
+    },
+    {
+      "rva": 8192,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198464,
+      "target_rva": 4160,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8196,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198500,
+      "target_rva": 4196,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8200,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198482,
+      "target_rva": 4178,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8204,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198488,
+      "target_rva": 4184,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8208,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198470,
+      "target_rva": 4166,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8212,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198506,
+      "target_rva": 4202,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8216,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198512,
+      "target_rva": 4208,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8220,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198494,
+      "target_rva": 4190,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8224,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198524,
+      "target_rva": 4220,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8228,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198476,
+      "target_rva": 4172,
+      "in_function": null,
+      "in_data": ".rdata"
+    },
+    {
+      "rva": 8232,
+      "kind": "HIGHLOW",
+      "width": 4,
+      "raw_value": 4198518,
+      "target_rva": 4214,
+      "in_function": null,
+      "in_data": ".rdata"
+    }
+  ],
+  "functions": [
+    {
+      "id": "f_001000",
+      "name": "add",
+      "demangled": "add",
+      "ranges": [
+        {
+          "rva": 4096,
+          "size": 9
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "cdecl",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:_add"
+        ]
+      },
+      "flags": [],
+      "aliases": [
+        "_add"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    },
+    {
+      "id": "f_001010",
+      "name": "mul_std",
+      "demangled": "mul_std",
+      "ranges": [
+        {
+          "rva": 4112,
+          "size": 12
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "stdcall",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:_mul_std@8"
+        ]
+      },
+      "flags": [],
+      "aliases": [
+        "_mul_std@8"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    },
+    {
+      "id": "f_001020",
+      "name": "sub_fast",
+      "demangled": "sub_fast",
+      "ranges": [
+        {
+          "rva": 4128,
+          "size": 5
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "fastcall",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:@sub_fast@8"
+        ]
+      },
+      "flags": [],
+      "aliases": [
+        "@sub_fast@8"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    },
+    {
+      "id": "f_001030",
+      "name": "dispatch",
+      "demangled": "dispatch",
+      "ranges": [
+        {
+          "rva": 4144,
+          "size": 94
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "cdecl",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:_dispatch"
+        ]
+      },
+      "flags": [
+        "has_jump_table"
+      ],
+      "aliases": [
+        "_dispatch"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    },
+    {
+      "id": "f_001090",
+      "name": "fib",
+      "demangled": "fib",
+      "ranges": [
+        {
+          "rva": 4240,
+          "size": 63
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb",
+        "call_target"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "cdecl",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:_fib"
+        ]
+      },
+      "flags": [],
+      "aliases": [
+        "_fib"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    },
+    {
+      "id": "f_0010d0",
+      "name": "loop_sum",
+      "demangled": "loop_sum",
+      "ranges": [
+        {
+          "rva": 4304,
+          "size": 132
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "cdecl",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:_loop_sum"
+        ]
+      },
+      "flags": [],
+      "aliases": [
+        "_loop_sum"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    },
+    {
+      "id": "f_001160",
+      "name": "mainCRTStartup",
+      "demangled": "mainCRTStartup",
+      "ranges": [
+        {
+          "rva": 4448,
+          "size": 146
+        }
+      ],
+      "section": ".text",
+      "isa": "x86",
+      "unit": "\u003Crepo\u003E/tests/corpus/msvc/sample.obj",
+      "toolchain": {
+        "id": "clang-19-msvc",
+        "confidence": "high",
+        "evidence": [
+          "pdb_compiland"
+        ],
+        "configured": false
+      },
+      "found_by": [
+        "pdb",
+        "entry_point"
+      ],
+      "confidence": "high",
+      "calling_convention": {
+        "value": "cdecl",
+        "confidence": "high",
+        "evidence": [
+          "mangling:c",
+          "alias:_mainCRTStartup"
+        ]
+      },
+      "flags": [],
+      "aliases": [
+        "_mainCRTStartup"
+      ],
+      "import_thunk": null,
+      "unknowns": []
+    }
+  ],
+  "data": [
+    {
+      "rva": 8192,
+      "size": 44,
+      "name": null,
+      "kind": "jump_table",
+      "source": "analysis"
+    },
+    {
+      "rva": 8192,
+      "size": 512,
+      "name": ".rdata",
+      "kind": "read_only",
+      "source": "section"
+    },
+    {
+      "rva": 12288,
+      "size": 0,
+      "name": "_g_message_id",
+      "kind": "data",
+      "source": "pdb"
+    },
+    {
+      "rva": 12288,
+      "size": 512,
+      "name": ".data",
+      "kind": "data",
+      "source": "section"
+    },
+    {
+      "rva": 12292,
+      "size": 0,
+      "name": "_g_table",
+      "kind": "data",
+      "source": "pdb"
+    },
+    {
+      "rva": 12356,
+      "size": 0,
+      "name": "_g_counter",
+      "kind": "data",
+      "source": "pdb"
+    },
+    {
+      "rva": 16384,
+      "size": 512,
+      "name": ".reloc",
+      "kind": "read_only",
+      "source": "section"
+    }
+  ],
+  "jump_tables": [
+    {
+      "rva": 8192,
+      "entries": 11,
+      "kind": "absolute",
+      "owner": "f_001030",
+      "used_at_rva": 4153,
+      "targets": [
+        4160,
+        4196,
+        4178,
+        4184,
+        4166,
+        4202,
+        4208,
+        4190,
+        4220,
+        4172,
+        4214
+      ]
+    }
+  ],
+  "xrefs": [
+    {
+      "from_rva": 4151,
+      "to_rva": 4232,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4153,
+      "to_rva": 8192,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4156,
+      "to_rva": 8192,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4190,
+      "to_rva": 12320,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4191,
+      "to_rva": 12320,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4220,
+      "to_rva": 12288,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4221,
+      "to_rva": 12288,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4225,
+      "to_rva": 12292,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4227,
+      "to_rva": 12292,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001030",
+      "to_function": null
+    },
+    {
+      "from_rva": 4251,
+      "to_rva": 4257,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_001090",
+      "to_function": null
+    },
+    {
+      "from_rva": 4255,
+      "to_rva": 4296,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_001090",
+      "to_function": null
+    },
+    {
+      "from_rva": 4276,
+      "to_rva": 4240,
+      "kind": "call",
+      "via_reloc": false,
+      "in_function": "f_001090",
+      "to_function": "f_001090"
+    },
+    {
+      "from_rva": 4294,
+      "to_rva": 4272,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_001090",
+      "to_function": null
+    },
+    {
+      "from_rva": 4312,
+      "to_rva": 4330,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4322,
+      "to_rva": 4334,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4328,
+      "to_rva": 4393,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4332,
+      "to_rva": 4416,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4362,
+      "to_rva": 12292,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4364,
+      "to_rva": 12292,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4368,
+      "to_rva": 12296,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4370,
+      "to_rva": 12296,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4374,
+      "to_rva": 12300,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4376,
+      "to_rva": 12300,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4380,
+      "to_rva": 12304,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4382,
+      "to_rva": 12304,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4391,
+      "to_rva": 4352,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4395,
+      "to_rva": 4416,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4405,
+      "to_rva": 12292,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4408,
+      "to_rva": 12292,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4414,
+      "to_rva": 4400,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4416,
+      "to_rva": 12356,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4417,
+      "to_rva": 12356,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4424,
+      "to_rva": 12356,
+      "kind": "data_write",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4426,
+      "to_rva": 12356,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_0010d0",
+      "to_function": null
+    },
+    {
+      "from_rva": 4450,
+      "to_rva": 4240,
+      "kind": "call",
+      "via_reloc": false,
+      "in_function": "f_001160",
+      "to_function": "f_001090"
+    },
+    {
+      "from_rva": 4458,
+      "to_rva": 12296,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4460,
+      "to_rva": 12296,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4464,
+      "to_rva": 12292,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4466,
+      "to_rva": 12292,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4470,
+      "to_rva": 12300,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4472,
+      "to_rva": 12300,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4476,
+      "to_rva": 12304,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4478,
+      "to_rva": 12304,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4482,
+      "to_rva": 12308,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4484,
+      "to_rva": 12308,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4488,
+      "to_rva": 12312,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4490,
+      "to_rva": 12312,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4494,
+      "to_rva": 12316,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4496,
+      "to_rva": 12316,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4500,
+      "to_rva": 12320,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4502,
+      "to_rva": 12320,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4506,
+      "to_rva": 12324,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4508,
+      "to_rva": 12324,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4512,
+      "to_rva": 12328,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4514,
+      "to_rva": 12328,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4518,
+      "to_rva": 12332,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4520,
+      "to_rva": 12332,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4524,
+      "to_rva": 12336,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4526,
+      "to_rva": 12336,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4530,
+      "to_rva": 12340,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4532,
+      "to_rva": 12340,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4536,
+      "to_rva": 12344,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4538,
+      "to_rva": 12344,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4542,
+      "to_rva": 12348,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4544,
+      "to_rva": 12348,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4548,
+      "to_rva": 12352,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4550,
+      "to_rva": 12352,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4554,
+      "to_rva": 12356,
+      "kind": "data_read",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4556,
+      "to_rva": 12356,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4580,
+      "to_rva": 12356,
+      "kind": "data_write",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4581,
+      "to_rva": 12356,
+      "kind": "reloc",
+      "via_reloc": true,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 4592,
+      "to_rva": 4592,
+      "kind": "jump",
+      "via_reloc": false,
+      "in_function": "f_001160",
+      "to_function": null
+    },
+    {
+      "from_rva": 8192,
+      "to_rva": 4160,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8196,
+      "to_rva": 4196,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8200,
+      "to_rva": 4178,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8204,
+      "to_rva": 4184,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8208,
+      "to_rva": 4166,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8212,
+      "to_rva": 4202,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8216,
+      "to_rva": 4208,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8220,
+      "to_rva": 4190,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8224,
+      "to_rva": 4220,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8228,
+      "to_rva": 4172,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    },
+    {
+      "from_rva": 8232,
+      "to_rva": 4214,
+      "kind": "data_ref",
+      "via_reloc": true,
+      "in_function": null,
+      "to_function": null
+    }
+  ],
+  "statistics": {
+    "functions": 7,
+    "functions_high": 7,
+    "functions_medium": 0,
+    "functions_low": 0,
+    "functions_import_thunks": 0,
+    "functions_named_by_signature": 0,
+    "functions_with_unknown_size": 0,
+    "calling_conventions_known": 7,
+    "jump_tables": 1,
+    "data_ranges": 7,
+    "xrefs": 83,
+    "instructions": 214
+  },
+  "problems": []
+}

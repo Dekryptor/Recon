@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-imports-0.1.json",
+  "title": "Imports of an image",
+  "description": "One `recon inspect` subcommand's output: imports of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "imports",
+    "dlls",
+    "functions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "imports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/import"
+      }
+    },
+    "dlls": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "functions": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "definitions": {
+    "import": {
+      "type": "object",
+      "required": [
+        "dll",
+        "iat_rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dll": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ordinal": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "iat_rva": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

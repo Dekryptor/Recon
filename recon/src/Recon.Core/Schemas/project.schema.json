@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/project-1.json",
+  "title": "recon project.toml",
+  "description": "Portable, committed project description. Mirrors what project.toml accepts; the loader is the authority and reports errors with file:line key paths. Unknown keys are rejected, except keys prefixed with x-.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "target",
+    "input"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "format",
+        "arch"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "enum": [
+            "pe32",
+            "pe64",
+            "elf32",
+            "elf64",
+            "macho32",
+            "macho64"
+          ]
+        },
+        "arch": {
+          "enum": [
+            "x86",
+            "x64",
+            "arm",
+            "arm64"
+          ]
+        },
+        "isa": {
+          "enum": [
+            "x86",
+            "x64",
+            "arm",
+            "arm64",
+            "vb6-pcode"
+          ]
+        },
+        "default_toolchain": {
+          "type": "string"
+        }
+      }
+    },
+    "input": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "file",
+          "sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "original",
+              "debug",
+              "map",
+              "reference"
+            ]
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^[^/\\\\]+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "for": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "build": {
+          "type": "string"
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "link_flags": {
+          "type": "array",
+          "description": "Flags appended to the linker command line after the profile's own link flags.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_function_confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "signatures": {
+          "description": "Path of a pattern file (recon sigs build), relative to the project directory, whose patterns name functions nothing else named.",
+          "type": "string"
+        },
+        "extra_entry_points": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "no_return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_range": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "rva",
+              "size"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "rva": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "kind": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "unit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "toolchain": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "defines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provider": {
+            "enum": [
+              "rebuilt",
+              "original"
+            ]
+          },
+          "status": {
+            "enum": [
+              "not_started",
+              "wip",
+              "matched",
+              "approx",
+              "library",
+              "skip"
+            ]
+          },
+          "covers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "rva": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "output": {
+          "type": "string"
+        },
+        "history": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

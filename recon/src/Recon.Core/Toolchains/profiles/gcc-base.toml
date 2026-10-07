@@ -1,0 +1,74 @@
+# Base profile for GCC toolchains. Extended by the per-version MinGW profiles.
+schema_version = 1
+id = "gcc-base"
+display_name = "GCC (base)"
+family = "gcc"
+abstract = true
+
+[abi]
+mangling = "itanium"
+default_cc = "cdecl"
+member_cc = "thiscall"
+pointer_size = 4
+
+[codegen]
+function_align = 16
+padding_bytes = [0x90, 0xCC]
+prologue_hints = ["push ebp; mov ebp, esp"]
+
+[linker]
+identical_code_folding = "never"
+comdat = true
+
+[eh]
+model = "dwarf2"
+
+[debug]
+format = "dwarf"
+
+# MinGW images carry GCC-style unwinding tables and do not carry MSVC's .pdata.
+[[detect.section]]
+name = ".eh_frame"
+
+# MSVCRT.dll is deliberately absent from this list. Every 32-bit Windows binary imports it:
+# LINK.EXE, C2.EXE and CVPACK.EXE from Visual Studio 98 all do, and each was reported as MinGW
+# before this was fixed. A rule that matches everything identifies nothing. What is MinGW-specific
+# is the runtime GCC ships alongside it, so those are the names here.
+[[detect.import_dll]]
+contains = "libgcc"
+
+# libstdc++-6.dll: the C++ runtime; libwinpthread-1.dll: the threading layer MinGW-w64 links in.
+[[detect.import_dll]]
+contains = "libstdc++"
+
+[[detect.import_dll]]
+contains = "libwinpthread"
+
+[detect.comment_section]
+contains = "GCC:"
+
+[detect.dwarf_producer]
+producer_contains = "GNU C"
+
+# The GCC driver compiles and links, and writes a Make dependency file on request; a version profile
+# only has to name its own executables. `depfile_flag` is what makes the build cache correct when a
+# header changes rather than merely conservative.
+[compile]
+depfile_flag = "-MMD -MF {dep}"
+
+# Which build made a binary is a question about flags as much as about source, so the search needs to
+# know what the levels are and how this compiler spells them. Clang takes the same spelling, and the
+# clang profiles extend this one. -Ofast is deliberately absent: it is allowed to change floating
+# point results, so a rebuild at -Ofast would not prove the same program. -Og is here because it is a
+# level GCC really has, and a reconstruction that cannot name it cannot find it.
+[compile.optimization]
+levels = ["-O0", "-O1", "-O2", "-O3", "-Os", "-Og"]
+
+[link]
+output_flag = "-o {exe}"
+
+# GCC pads with nop (and int3 in some builds), so alignment bytes must not read as code.
+[compare]
+similarity_threshold = 0.80
+ignore_padding = true
+difference_limit = 24

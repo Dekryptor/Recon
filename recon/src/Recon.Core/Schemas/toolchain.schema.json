@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/toolchain-1.json",
+  "title": "recon toolchain profile",
+  "description": "A profile describes one compiler/runtime/linker combination as data: mangling, calling conventions, code generation idioms, exception model, debug format, how to detect it, and how to run it. Profiles may extend one other profile: tables merge key by key, arrays replace.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "display_name",
+    "family"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "family": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string"
+    },
+    "abstract": {
+      "type": "boolean"
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "format",
+          "arch"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "format": {
+            "enum": [
+              "pe32",
+              "pe64",
+              "elf32",
+              "elf64",
+              "macho32",
+              "macho64"
+            ]
+          },
+          "arch": {
+            "enum": [
+              "x86",
+              "x64",
+              "arm",
+              "arm64"
+            ]
+          },
+          "isa": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "abi": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mangling": {
+          "enum": [
+            "msvc",
+            "itanium",
+            "watcom",
+            "borland",
+            "none"
+          ]
+        },
+        "default_cc": {
+          "type": "string"
+        },
+        "member_cc": {
+          "type": "string"
+        },
+        "pointer_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        }
+      }
+    },
+    "codegen": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "function_align": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "padding_bytes": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          }
+        },
+        "prologue_hints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "compare": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "similarity_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ignore_padding": {
+          "type": "boolean"
+        },
+        "difference_limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "linker": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "identical_code_folding": {
+          "enum": [
+            "never",
+            "possible",
+            "always"
+          ]
+        },
+        "comdat": {
+          "type": "boolean"
+        }
+      }
+    },
+    "eh": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string"
+        }
+      }
+    },
+    "debug": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "type": "string"
+        }
+      }
+    },
+    "detect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rich_header": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "tool": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "linker",
+                  "compiler"
+                ]
+              },
+              "build_min": {
+                "type": "integer"
+              },
+              "build_max": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "pdb_compiland": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "producer_contains": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "comment_section": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contains": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "dwarf_producer": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "producer_contains": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "linker_version": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "import_dll": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contains": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "compile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exe": {
+          "type": "string"
+        },
+        "default_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include_flag": {
+          "type": "string"
+        },
+        "define_flag": {
+          "type": "string"
+        },
+        "output_flag": {
+          "type": "string"
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "depfile_flag": {
+          "type": "string",
+          "description": "How to ask the compiler for a dependency file, for example \"-MMD -MF {dep}\"."
+        }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exe": {
+          "type": "string"
+        },
+        "default_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "output_flag": {
+          "type": "string",
+          "description": "How to name the linked output, for example \"-o {exe}\" or \"/OUT:{exe}\"."
+        }
+      }
+    },
+    "install": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

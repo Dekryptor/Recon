@@ -1,0 +1,48 @@
+# clang targeting the MSVC ABI, linked with lld-link: the toolchain that makes "MSVC first" testable
+# on Linux, because it writes a real PDB, a real map file and MSVC-ABI objects without Visual Studio.
+# Used by the tool's own MSVC corpus (tools/build-msvc-corpus.sh).
+schema_version = 1
+id = "clang-19-msvc"
+display_name = "clang 19 (MSVC ABI, lld-link)"
+family = "msvc"
+extends = "msvc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+# clang-cl and lld-link are 64-bit tools too, and the relink path needs a profile that names them
+# for a 64-bit MSVC image: the addresses come from alignment and the piece order, so the same pair
+# that builds the 32-bit corpus rebuilds a 64-bit image byte for byte.
+[[targets]]
+format = "pe64"
+arch = "x64"
+
+# The PDB names the compiler in its compiland records, which is the most direct evidence there is.
+[[detect.pdb_compiland]]
+producer_contains = "clang version 19"
+
+# lld-link records itself as the second compiland, "* Linker *".
+[[detect.pdb_compiland]]
+producer_contains = "LLVM Linker"
+
+# clang-cl also emits a .comment section; a freestanding clang build does not, hence both rules.
+[[detect.comment_section]]
+contains = "clang version"
+
+[compile]
+exe = "bin/clang-cl.exe"
+default_flags = ["/c", "/Z7"]
+include_flag = "/I{path}"
+define_flag = "/D{name}"
+output_flag = "/Fo{obj}"
+
+# /Od disables optimization, /O1 favours size, /O2 speed, /Ox is full optimization. They are separate
+# flags rather than a level's argument, which is why they are listed and not templated.
+[compile.optimization]
+levels = ["/Od", "/O1", "/O2", "/Ox"]
+
+[link]
+exe = "bin/lld-link.exe"
+default_flags = ["/nologo", "/debug"]
+output_flag = "/OUT:{exe}"

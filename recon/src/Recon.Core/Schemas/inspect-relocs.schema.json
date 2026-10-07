@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-relocs-0.1.json",
+  "title": "Relocations of an image",
+  "description": "One `recon inspect` subcommand's output: relocations of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "relocations",
+    "total",
+    "unresolved"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "relocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/relocation"
+      }
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unresolved": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "definitions": {
+    "relocation": {
+      "type": "object",
+      "required": [
+        "rva",
+        "kind",
+        "width",
+        "raw_value",
+        "target_rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "raw_value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_rva": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "in_function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "in_data": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

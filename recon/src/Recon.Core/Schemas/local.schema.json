@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/local-1.json",
+  "title": "recon local.toml",
+  "description": "Machine-specific paths. Never committed: this is where absolute paths and compiler installs live.",
+  "type": "object",
+  "required": [
+    "schema_version"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string"
+        }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "root": {
+            "type": "string",
+            "description": "Directory the profile's tool paths are relative to. Optional: without it, cc and link are absolute paths or bare command names looked up on PATH, which is how a Linux toolchain installed by the distro is used."
+          },
+          "wine": {
+            "type": "boolean"
+          },
+          "env": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "cc": {
+            "type": "string",
+            "description": "Compiler to use instead of the profile's compile.exe; absolute, or relative to root."
+          },
+          "link": {
+            "type": "string",
+            "description": "Linker to use instead of the profile's link.exe; absolute, or relative to root."
+          }
+        }
+      }
+    }
+  }
+}

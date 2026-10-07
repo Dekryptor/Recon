@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/sigs-apply-0.1.json",
+  "title": "Signature apply document",
+  "description": "What `recon sigs apply` named: how many functions a pattern matched, and which ones. Attribution is per function, so a match says what a function is, never that the rest of the binary is that library.",
+  "type": "object",
+  "required": ["signatures", "functions", "named", "matches"],
+  "additionalProperties": false,
+  "properties": {
+    "signatures": { "type": "integer", "minimum": 0, "description": "How many patterns were loaded." },
+    "functions": { "type": "integer", "minimum": 0, "description": "How many functions were tried against them." },
+    "named": { "type": "integer", "minimum": 0, "description": "How many functions a pattern named." },
+    "matches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rva", "size"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": ["string", "null"] },
+          "rva": { "type": "integer", "minimum": 0 },
+          "size": { "type": "integer", "minimum": 0 },
+          "library": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

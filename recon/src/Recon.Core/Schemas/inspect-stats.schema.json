@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-stats-0.1.json",
+  "title": "Statistics of an image",
+  "description": "One `recon inspect` subcommand's output: statistics of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "statistics",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "statistics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

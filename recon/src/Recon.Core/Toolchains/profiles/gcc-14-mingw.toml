@@ -1,0 +1,36 @@
+# GCC 14 for 32-bit Windows (MinGW-w64). Used by the tool's own test corpus.
+schema_version = 1
+id = "gcc-14-mingw"
+display_name = "GCC 14 (MinGW-w64, 32-bit)"
+family = "gcc"
+extends = "gcc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+[[detect.comment_section]]
+contains = "GCC: (GNU) 14"
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C17 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C11 14"
+# C++ compilands name the language standard they used, and g++ 14 says C++17.
+[[detect.dwarf_producer]]
+producer_contains = "GNU C++17 14"
+[[detect.dwarf_producer]]
+producer_contains = "GNU C++14 14"
+
+[compile]
+exe = "bin/gcc.exe"
+default_flags = ["-c", "-g", "-O2"]
+include_flag = "-I{path}"
+define_flag = "-D{name}"
+output_flag = "-o {obj}"
+
+# --no-insert-timestamp keeps the image byte-stable across runs: a linker that stamps its output
+# would make every rebuild look different, which is noise a reconstruction cannot afford.
+[link]
+exe = "bin/gcc.exe"
+default_flags = ["-Wl,--no-insert-timestamp"]

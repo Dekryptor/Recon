@@ -1,0 +1,21 @@
+# Visual C++ 2010 (toolset 10.0). Inheritance keeps this file to the parts that differ.
+schema_version = 1
+id = "msvc-2010"
+display_name = "Microsoft Visual C++ 2010 (10.0)"
+family = "msvc"
+extends = "msvc-2008"
+
+[[detect.linker_version]]
+min = "10.0"
+max = "10.99"
+
+[[detect.import_dll]]
+contains = "msvcr100"
+[[detect.import_dll]]
+contains = "msvcp100"
+
+[[detect.rich_header]]
+role = "linker"
+tool = "link"
+build_min = 30319
+build_max = 40218

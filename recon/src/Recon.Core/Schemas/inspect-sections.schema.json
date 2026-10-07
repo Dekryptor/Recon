@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-sections-0.1.json",
+  "title": "Sections of an image",
+  "description": "One `recon inspect` subcommand's output: sections of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "sections",
+    "image_base",
+    "entry_rva"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/section"
+      }
+    },
+    "image_base": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "entry_rva": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "definitions": {
+    "section": {
+      "type": "object",
+      "required": [
+        "name",
+        "rva",
+        "virtual_size",
+        "raw_size",
+        "raw_offset",
+        "characteristics",
+        "flags",
+        "code"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "virtual_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "characteristics": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "code": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

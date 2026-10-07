@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-debug-0.1.json",
+  "title": "Debug info of an image",
+  "description": "One `recon inspect` subcommand's output: debug info of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "debug",
+    "compilands",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "debug": {
+      "$ref": "#/definitions/debug"
+    },
+    "compilands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "unit",
+          "functions"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "object_file": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "producer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "functions": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "debug": {
+      "type": "object",
+      "required": [
+        "kind",
+        "symbols",
+        "functions",
+        "compilands"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "The source the names came from first: DWARF, or the ELF or Mach-O symbol table inside the image, a PDB or map file beside it. When several contributed, `sources` lists them all.",
+          "enum": [
+            "pdb",
+            "coff",
+            "map",
+            "dwarf",
+            "elf",
+            "macho",
+            "none"
+          ]
+        },
+        "sources": {
+          "description": "Every source that named a symbol in this image, in no particular order. A Linux binary usually has two: DWARF for the code the compiler described and the symbol table for what it did not.",
+          "type": "array",
+          "items": {
+            "enum": [
+              "pdb",
+              "coff",
+              "map",
+              "dwarf",
+              "elf",
+              "macho",
+              "export",
+              "entry_point",
+              "tls_callback",
+              "runtime_callback",
+              "call_target",
+              "prologue",
+              "jump_table_target",
+              "pcode_procedure",
+              "import_thunk",
+              "signature",
+              "config"
+            ]
+          }
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "age": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "embedded_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matches_binary": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "symbols": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "functions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "compilands": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

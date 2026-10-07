@@ -1,0 +1,695 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/comparison-0.1.json",
+  "title": "Recon comparison",
+  "description": "Function-by-function comparison of two builds. Addresses are RVAs unless a field name says otherwise. Two builds of the same source differ in every address they contain; this document is what is left once relocations and padding are accounted for, so a difference here is a difference in the code.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generator",
+    "left",
+    "right",
+    "model",
+    "summary",
+    "functions",
+    "data",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "left": {
+      "$ref": "#/$defs/side"
+    },
+    "right": {
+      "$ref": "#/$defs/side"
+    },
+    "model": {
+      "$ref": "#/$defs/model"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/function"
+      }
+    },
+    "data": {
+      "$ref": "#/$defs/data_summary"
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "generator": {
+      "type": "object",
+      "required": [
+        "tool",
+        "version",
+        "command"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "side": {
+      "type": "object",
+      "required": [
+        "label",
+        "binary",
+        "format",
+        "arch",
+        "image_size",
+        "entry_rva",
+        "functions",
+        "debug_kind",
+        "analysis_ms",
+        "inventory_source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "project": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "project_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "binary": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "arch": {
+          "type": "string"
+        },
+        "image_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "entry_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "functions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "debug_kind": {
+          "type": "string"
+        },
+        "toolchain": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "analysis_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inventory_source": {
+          "type": "string",
+          "enum": [
+            "built",
+            "read"
+          ],
+          "description": "Whether the side's inventory was built by the analysis (built) or read back from the document `recon inventory` had already written (read)."
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "relocation_classes",
+        "reference_classes",
+        "references_named",
+        "references_unnamed",
+        "references_identified",
+        "matched_by",
+        "bodies_proven_identical",
+        "similarity_threshold",
+        "ignore_padding",
+        "difference_limit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "relocation_classes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "relocation_model": {
+          "type": "object",
+          "description": "Each relocation kind the container recorded, reduced to the abstract class of section 3.1 it belongs to: Absolute, Relative, Import or JumpTable.",
+          "additionalProperties": {
+            "enum": [
+              "Absolute",
+              "Relative",
+              "Import",
+              "JumpTable",
+              "Unknown"
+            ]
+          }
+        },
+        "reference_classes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "references_named": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "references_unnamed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Address operands that resolved to a place in the image with no name and nothing distinctive at it: the comparison can say only where they are, so two builds report a difference whenever the layout differs."
+        },
+        "references_identified": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Address operands with no name that are identified by what is at them rather than by where they are: a string literal, a table of constants, a table of addresses. These pair across two builds that put them in different places."
+        },
+        "bodies_proven_identical": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Pairs whose identical body (by normalized body key) decided the comparison, so neither body was decoded a second time."
+        },
+        "matched_by": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "similarity_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ignore_padding": {
+          "type": "boolean"
+        },
+        "difference_limit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "profile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "functions_left",
+        "functions_right",
+        "matched",
+        "exact",
+        "changed",
+        "folded",
+        "only_left",
+        "only_right",
+        "instructions_left",
+        "instructions_right",
+        "instructions_equal",
+        "score",
+        "data_symbols",
+        "data_identical",
+        "data_changed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "functions_left": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "functions_right": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "matched": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exact": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "changed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "folded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "only_left": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "only_right": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "instructions_left": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "instructions_right": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "instructions_equal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "data_symbols": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "data_identical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "data_changed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "function": {
+      "type": "object",
+      "required": [
+        "status",
+        "score",
+        "moved",
+        "instructions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "exact",
+            "changed",
+            "folded",
+            "only_left",
+            "only_right"
+          ]
+        },
+        "match": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "name",
+            "body",
+            "similarity",
+            null
+          ]
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "moved": {
+          "type": "boolean"
+        },
+        "left": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/function_side"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "right": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/function_side"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "instructions": {
+          "$ref": "#/$defs/counts"
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/difference"
+          }
+        },
+        "aligned": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/aligned"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "function_side": {
+      "type": "object",
+      "required": [
+        "id",
+        "rva",
+        "size",
+        "section",
+        "flags"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "section": {
+          "type": "string"
+        },
+        "calling_convention": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": [
+        "left",
+        "right",
+        "equal",
+        "relocated"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "left": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "right": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "equal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "relocated": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "aligned": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "equal",
+            "changed",
+            "added",
+            "removed"
+          ]
+        },
+        "left_rva": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "left_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "right_rva": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "right_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "difference": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "opcode",
+            "register",
+            "immediate",
+            "reference",
+            "addressing",
+            "operand",
+            "added",
+            "removed"
+          ]
+        },
+        "left_rva": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "right_rva": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "left_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "right_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "left_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "right_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "data_summary": {
+      "type": "object",
+      "required": [
+        "identical",
+        "changed",
+        "only_left",
+        "only_right",
+        "symbols"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "identical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "changed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "only_left": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "only_right": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "symbols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/data_symbol"
+          }
+        }
+      }
+    },
+    "data_symbol": {
+      "type": "object",
+      "required": [
+        "name",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "identical",
+            "changed",
+            "only_left",
+            "only_right"
+          ]
+        },
+        "left_rva": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "right_rva": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "left_size": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "right_size": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "left_words": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "right_words": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

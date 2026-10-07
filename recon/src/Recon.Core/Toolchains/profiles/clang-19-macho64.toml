@@ -1,0 +1,70 @@
+# clang 19 targeting Mach-O on x86-64. Three things about a Mach-O build are different from an ELF
+# one, and all three change what the analysis does:
+#
+#   * A switch's jump table lives in __text, inside the function that reads it, rather than in a
+#     read-only section beside it.
+#   * A call to an import goes through a stub in __stubs, which jumps through a pointer in
+#     __la_symbol_ptr — there is no import table, and the pointer is the closest thing to one.
+#   * The DWARF is not in the image. clang leaves a debug map in the executable and dsymutil collects
+#     the real thing into a .dSYM bundle beside it, which is where the tool reads it from.
+#
+# Building with this profile needs the target's headers, and a machine that is not Apple has none.
+# That is why the corpus is compiled against tests/corpus/macho-stubs/: it declares the handful of
+# libc symbols the corpus source uses and nothing more.
+schema_version = 1
+id = "clang-19-macho64"
+display_name = "clang 19 (Mach-O, x86-64)"
+family = "clang"
+extends = "gcc-base"
+
+[[targets]]
+format = "macho64"
+arch = "x64"
+
+[abi]
+mangling = "itanium"
+default_cc = "sysv"
+member_cc = "thiscall"
+pointer_size = 8
+
+[codegen]
+function_align = 16
+padding_bytes = [0x90, 0xCC]
+prologue_hints = [
+  "push rbp; mov rbp, rsp",
+  "push rbx",
+  "push r12",
+  "sub rsp, imm",
+]
+
+[linker]
+identical_code_folding = "never"
+
+[debug]
+format = "dwarf,map"
+
+# A Mach-O image has no .comment section, no rich header and no COFF symbol table: what identifies
+# one is the shape of its sections, which no other format has.
+[[detect.section]]
+name = "__stubs"
+
+[[detect.section]]
+name = "__la_symbol_ptr"
+
+# The dSYM bundle is where a Mach-O build keeps its producer string, so this rule only fires when the
+# bundle is there too.
+[[detect.dwarf_producer]]
+producer_contains = "clang version 19"
+
+[compile]
+exe = "clang-19"
+default_flags = ["-c", "-g", "-O2", "-target", "x86_64-apple-macos12.0", "-nostdlibinc"]
+include_flag = "-I{path}"
+define_flag = "-D{name}"
+output_flag = "-o {obj}"
+
+# ld64.lld, not clang: the driver would want an SDK to link against. `-undefined dynamic_lookup`
+# leaves the imports for the dynamic linker, which is fine for a binary that is read and never run.
+[link]
+exe = "ld64.lld-19"
+default_flags = ["-arch", "x86_64", "-platform_version", "macos", "12.0", "12.0", "-undefined", "dynamic_lookup"]

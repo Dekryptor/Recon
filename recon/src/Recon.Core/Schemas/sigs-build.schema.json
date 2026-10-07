@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/sigs-build-0.1.json",
+  "title": "Signature build document",
+  "description": "What `recon sigs build` wrote: how many patterns, from how many named functions, and where.",
+  "type": "object",
+  "required": ["path", "patterns", "functions", "problems"],
+  "additionalProperties": false,
+  "properties": {
+    "path": { "type": "string", "description": "The pattern file that was written." },
+    "patterns": { "type": "integer", "minimum": 0 },
+    "functions": { "type": "integer", "minimum": 0, "description": "How many named functions they were built from." },
+    "library": { "type": ["string", "null"], "description": "The --library the patterns are attributed to, when one was given." },
+    "problems": { "type": "array", "items": { "type": "string" } }
+  }
+}

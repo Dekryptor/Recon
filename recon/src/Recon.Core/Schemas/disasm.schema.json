@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/disasm-0.1.json",
+  "title": "Disasm document",
+  "description": "What `recon disasm` decoded: instructions from an address, a name or a substring, with the cross-reference target and the annotation the inventory gave each one.",
+  "type": "object",
+  "required": ["start_rva", "instructions"],
+  "additionalProperties": false,
+  "properties": {
+    "start_rva": { "type": "integer", "minimum": 0 },
+    "function": { "type": ["string", "null"], "description": "The function the range falls in, when it falls in one." },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rva", "bytes", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "rva": { "type": "integer", "minimum": 0 },
+          "bytes": { "type": "string", "description": "The instruction's bytes, hex, space-separated." },
+          "text": { "type": "string", "description": "The disassembled instruction, as the decoder writes it." },
+          "xref_target": { "type": ["integer", "null"], "description": "Where a call or jump in this instruction points." },
+          "annotation": { "type": ["string", "null"], "description": "What the inventory knows about that target: import:name, data:name, and so on." }
+        }
+      }
+    }
+  }
+}

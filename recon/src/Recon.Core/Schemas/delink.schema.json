@@ -1,0 +1,448 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/delink-0.1.json",
+  "title": "Recon delink plan",
+  "description": "An image cut into pieces a linker can put back at the same addresses, with a provider decision for each piece. The pieces tile every emitted section: no overlaps, no gaps. `provider = \"original\"` keeps the original's bytes; `provider = \"rebuilt\"` means a unit's own build is to take the piece's place.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generator",
+    "binary",
+    "entry_symbol",
+    "sections",
+    "pieces",
+    "symbols",
+    "counts",
+    "problems",
+    "notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "binary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "image_base",
+        "entry_rva",
+        "format",
+        "arch",
+        "is_dll"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "image_base": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "entry_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "pe32",
+            "pe64"
+          ]
+        },
+        "arch": {
+          "type": "string"
+        },
+        "is_dll": {
+          "type": "boolean"
+        }
+      }
+    },
+    "entry_symbol": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "pieces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/piece"
+      }
+    },
+    "symbols": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/symbol"
+      }
+    },
+    "counts": {
+      "$ref": "#/$defs/counts"
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool",
+        "version"
+      ],
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "rva",
+        "virtual_size",
+        "raw_size",
+        "pieces",
+        "emitted"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "virtual_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "output": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "input": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "flags": {
+          "type": "string"
+        },
+        "pieces": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "emitted": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "piece": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "rva",
+        "size",
+        "section",
+        "provider",
+        "fixups",
+        "notes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "function",
+            "data",
+            "jump_table",
+            "filler"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "section": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "original",
+            "rebuilt"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "symbol": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "symbol_renamed": {
+          "type": "boolean"
+        },
+        "fixups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fixup"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/label"
+          }
+        }
+      }
+    },
+    "fixup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rva",
+        "width",
+        "kind",
+        "raw_value",
+        "emitted"
+      ],
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "kind": {
+          "type": "string"
+        },
+        "raw_value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_rva": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "target_symbol": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "emitted": {
+          "type": "boolean"
+        }
+      }
+    },
+    "symbol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "rva",
+        "kind",
+        "synthetic"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "function",
+            "data",
+            "absolute",
+            "entry"
+          ]
+        },
+        "synthetic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sections",
+        "pieces",
+        "functions",
+        "data",
+        "jump_tables",
+        "fillers",
+        "original",
+        "rebuilt",
+        "bytes",
+        "fixups",
+        "fixups_not_emitted"
+      ],
+      "properties": {
+        "sections": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pieces": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "functions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "data": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "jump_tables": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fillers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "original": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rebuilt": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fixups": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fixups_not_emitted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "labels": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rva",
+        "name",
+        "kind"
+      ],
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

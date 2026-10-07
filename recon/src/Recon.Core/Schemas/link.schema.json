@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/link-0.1.json",
+  "title": "Link document",
+  "description": "What `recon link` produced: the relinked image, and how much of it is reconstructed code rather than bytes carried over from the original.",
+  "type": "object",
+  "required": ["schema_version", "image", "pieces", "rebuilt", "rebuilt_pieces", "problems"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "image": { "type": "string" },
+    "pieces": { "type": "integer", "minimum": 0, "description": "How many pieces the delink plan cut the original into." },
+    "rebuilt": { "type": "integer", "minimum": 0, "description": "How many of those pieces a unit claims to provide rather than the original's bytes." },
+    "rebuilt_pieces": {
+      "type": "array",
+      "description": "The pieces actually filled from a unit's own build. A claim is not a supply: a unit can claim a piece and have nothing that fits it, and the difference is what this says.",
+      "items": {
+        "type": "object",
+        "required": ["piece", "unit", "source", "bytes", "references", "original_bytes_kept"],
+        "additionalProperties": false,
+        "properties": {
+          "piece": { "type": "string", "description": "The plan's id for the piece that was filled." },
+          "unit": { "type": "string", "description": "The unit whose build filled it." },
+          "source": { "type": "string", "description": "That unit's source, as the project names it." },
+          "bytes": { "type": "integer", "minimum": 0, "description": "How many bytes of the unit's compiled function were placed." },
+          "references": { "type": "integer", "minimum": 0, "description": "Addresses inside the rebuild emitted as references to names the image defines." },
+          "original_bytes_kept": { "type": "integer", "minimum": 0, "description": "Bytes of the original kept after the rebuild, when the rebuild is shorter than the space the original used." }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Why a claimed piece kept the original's bytes: no object, a stale object, a name the object does not define, a rebuild that does not fit, or a reference the relinked image cannot name."
+    }
+  }
+}

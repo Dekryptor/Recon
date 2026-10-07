@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.example/schemas/vb6.schema.json",
+  "title": "Visual Basic 5/6 program structure",
+  "description": "The header, project data and objects of a Visual Basic 5/6 program, read out of the file. This is the project's shape rather than its code: the shape is the same whether the program was compiled to native x86 or to p-code, and the structures that would give a method's code are filled in only by the compiler that needs them.",
+  "type": "object",
+  "required": [
+    "file",
+    "header",
+    "project",
+    "objects",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path of the program as it was given."
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "header": {
+      "type": "object",
+      "description": "The VB5! structure the program's entry point pushes before calling ThunRTMain.",
+      "required": [
+        "signature",
+        "rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "Always VB5!, including in a VB6 program."
+        },
+        "rva": {
+          "type": "integer",
+          "description": "Where the header is, relative to the image base."
+        },
+        "runtime_build": {
+          "type": "integer"
+        },
+        "runtime_dll_version": {
+          "type": "integer"
+        },
+        "language_dll": {
+          "type": "string",
+          "description": "The language DLL the program asks for. VB6 writes * for a language-neutral program, which is what every program measured here does."
+        },
+        "language_id": {
+          "type": "integer"
+        },
+        "sub_main_rva": {
+          "type": "integer",
+          "description": "The procedure the runtime calls after it starts, or 0 when a form is shown instead."
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "template_version",
+        "isa",
+        "compile_state",
+        "objects_declared",
+        "objects_reported",
+        "code_note"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "template_version": {
+          "type": "integer",
+          "description": "0x1F4 (500) for a VB6 program."
+        },
+        "isa": {
+          "type": "string",
+          "description": "x86 for a natively compiled program, vb6-pcode for one that is interpreted."
+        },
+        "code_start_rva": {
+          "type": "integer"
+        },
+        "code_end_rva": {
+          "type": "integer"
+        },
+        "code_size": {
+          "type": "integer"
+        },
+        "data_size": {
+          "type": "integer",
+          "description": "Size of the per-object data the runtime allocates."
+        },
+        "native_code_rva": {
+          "type": "integer",
+          "description": "Where native code starts, or 0 for a p-code program: the aNativeCode field."
+        },
+        "build_path": {
+          "type": "string",
+          "description": "The path the program was built in, recorded by the compiler in UTF-16. Machine names, drive letters and the source layout of the original build, straight out of the file."
+        },
+        "compile_state": {
+          "type": "integer",
+          "description": "0x000A in every compiled program measured."
+        },
+        "objects_declared": {
+          "type": "integer",
+          "description": "Objects the project's object table declares."
+        },
+        "objects_reported": {
+          "type": "integer",
+          "description": "Objects actually read; fewer than declared only when something was unreadable, which is then in problems."
+        },
+        "objects_compiled": {
+          "type": "integer",
+          "description": "Objects the table says were compiled. Not always equal to the number it declares: ElementEvil.exe says 76 against 73, so the two are not one number written twice."
+        },
+        "code_note": {
+          "type": "string",
+          "description": "What the tool can do with this program's code, said rather than implied."
+        }
+      }
+    },
+    "objects": {
+      "type": "array",
+      "description": "One entry per form, class module and standard module, in the order the object table lists them.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "type_flags",
+          "methods",
+          "descriptor_rva"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The object's name as the project spells it. Empty when the name pointer does not land on readable text, which is reported in problems."
+          },
+          "kind": {
+            "type": "string",
+            "description": "form, class module, standard module, user control, property page, or the raw type word when it is none of those."
+          },
+          "type_flags": {
+            "type": "integer",
+            "description": "The type word itself: 0x00018083 is a form, 0x00018001 a standard module, 0x00118003 a class module."
+          },
+          "methods": {
+            "type": "integer",
+            "description": "Methods the object declares, from its descriptor."
+          },
+          "descriptor_rva": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "description": "Anything the program's own pointers said that did not add up, said out loud rather than dropped.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

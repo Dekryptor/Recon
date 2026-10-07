@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/verify-0.1.json",
+  "title": "Verify document",
+  "description": "Whether a project still points at the files it means: every input's SHA-256, whether the debug info matches the binary, whether the units' sources and toolchains are there. The command never writes anything.",
+  "type": "object",
+  "required": ["project", "ok", "inputs"],
+  "additionalProperties": false,
+  "properties": {
+    "project": { "type": "string", "description": "[project] name." },
+    "ok": { "type": "boolean", "description": "False when any check failed. This is the field to branch on." },
+    "debug_matches_binary": {
+      "type": ["boolean", "null"],
+      "description": "Whether the debug info describes this binary. Null when there is no debug info to compare."
+    },
+    "messages": { "type": "array", "items": { "type": "string" } },
+    "inputs": {
+      "type": "array",
+      "description": "Every [[input]] in project.toml.",
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "file", "path", "exists", "expected_sha256", "ok"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "type": "string", "description": "original, reference, or whatever the project named it." },
+          "file": { "type": "string", "description": "The file name as project.toml spells it." },
+          "path": { "type": "string", "description": "Where that name resolved to on this machine." },
+          "exists": { "type": "boolean" },
+          "expected_sha256": { "type": "string" },
+          "actual_sha256": { "type": ["string", "null"] },
+          "ok": { "type": "boolean" },
+          "message": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "toolchains": {
+      "type": "array",
+      "description": "Every toolchain the project or a unit names, resolved on this machine.",
+      "items": {
+        "type": "object",
+        "required": ["id", "root", "root_exists", "files_checked", "ok"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "root": { "type": "string" },
+          "root_exists": { "type": "boolean" },
+          "cc": { "type": ["string", "null"] },
+          "link": { "type": ["string", "null"] },
+          "cc_problem": { "type": ["string", "null"] },
+          "link_problem": { "type": ["string", "null"] },
+          "files_checked": { "type": "integer", "minimum": 0 },
+          "files_missing": { "type": "array", "items": { "type": "string" } },
+          "files_mismatched": { "type": "array", "items": { "type": "string" } },
+          "ok": { "type": "boolean" }
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "description": "Every [[unit]]: that its source is there and its toolchain resolves.",
+      "items": {
+        "type": "object",
+        "required": ["name", "source", "exists", "toolchain", "ok"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "source": { "type": "string" },
+          "exists": { "type": "boolean" },
+          "toolchain": { "type": "string" },
+          "ok": { "type": "boolean" },
+          "message": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

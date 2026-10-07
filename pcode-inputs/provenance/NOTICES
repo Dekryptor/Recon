@@ -1,0 +1,41 @@
+# corpus-pcode/NOTICES
+
+Each program in `corpus-pcode/` is a P-code build of a program in `corpus/`.
+It is here because the licence of its source permits redistribution.
+
+The author built each one on a Windows XP host with the Visual Basic 6 IDE
+(VB6 SP6, `VB6.EXE` of 1,895,424 bytes, dated 2004-02-23), from the corpus
+project of the same path, with one change: in the project file, the line
+`CompilationType=0` became `CompilationType=-1`. Nothing else was changed.
+`cargo run -p xtask -- export-pcode` makes that change, and
+`cargo run -p xtask -- import-pcode` copies each executable here.
+
+`tests/pcode.toml` gives, for each program, the hash of the corpus files that
+the build read, the result of the build, and the SHA-256 of the executable.
+The source of each executable is in this repository, in `corpus/`, at the
+commit that adds the executable.
+
+## The licence of each program
+
+The licence of each program is the licence of its source.
+
+| Directory | Licence | Licence text |
+|---|---|---|
+| `corpus-pcode/vb6-code` | BSD 2-Clause, Copyright (c) 2018, Tanner Helland | `corpus-pcode/vb6-code/LICENSE.md` |
+| `corpus-pcode/public-domain` | The Unlicense | the `LICENSE` file of each directory under `corpus/public-domain` |
+
+The BSD 2-Clause licence asks that a redistribution in binary form reproduce
+the copyright notice, the list of conditions and the disclaimer.
+`corpus-pcode/vb6-code/LICENSE.md` is a copy of `corpus/vb6-code/LICENSE.md`,
+and it holds all three.
+
+## Two programs that have no P-code build
+
+Their source does not build, so a P-code build of them does not exist:
+
+- `vb6-code/Edge-detection/Edge_Detection.exe`: its project file names
+  `cCommonDialog.cls`, which is not in its directory.
+- `vb6-code/Hidden-Markov-model/HMM.exe`: `frmHMM.frx` is damaged upstream,
+  as `corpus/NOTICES` says.
+
+A repair would invent source, so neither is repaired.

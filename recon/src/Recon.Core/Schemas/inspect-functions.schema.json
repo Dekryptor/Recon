@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-functions-0.1.json",
+  "title": "Functions of an image",
+  "description": "One `recon inspect` subcommand's output: functions of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "functions",
+    "statistics"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/function"
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    }
+  },
+  "definitions": {
+    "function": {
+      "type": "object",
+      "required": [
+        "id",
+        "ranges",
+        "section",
+        "isa",
+        "toolchain",
+        "found_by",
+        "confidence",
+        "calling_convention",
+        "flags",
+        "aliases",
+        "unknowns"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^f_[0-9a-f]+$"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "demangled": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ranges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/range"
+          },
+          "minItems": 1
+        },
+        "section": {
+          "type": "string"
+        },
+        "isa": {
+          "type": "string"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "toolchain": {
+          "$ref": "#/definitions/toolchain_ref"
+        },
+        "found_by": {
+          "description": "Every source that named this address as a function's start. `elf` is the ELF symbol table and `macho` the Mach-O one, which is what a binary has when it has no DWARF.",
+          "type": "array",
+          "items": {
+            "enum": [
+              "pdb",
+              "dwarf",
+              "coff",
+              "elf",
+              "macho",
+              "map",
+              "export",
+              "entry_point",
+              "tls_callback",
+              "runtime_callback",
+              "call_target",
+              "prologue",
+              "jump_table_target",
+              "pcode_procedure",
+              "import_thunk",
+              "signature",
+              "config"
+            ]
+          }
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "calling_convention": {
+          "$ref": "#/definitions/calling_convention"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "import_thunk": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unknowns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "calling_convention": {
+      "type": "object",
+      "required": [
+        "value",
+        "confidence",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "enum": [
+            "cdecl",
+            "stdcall",
+            "fastcall",
+            "thiscall",
+            "vectorcall",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "toolchain_ref": {
+      "type": "object",
+      "required": [
+        "id",
+        "confidence",
+        "evidence",
+        "configured"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "configured": {
+          "type": "boolean"
+        }
+      }
+    },
+    "range": {
+      "type": "object",
+      "required": [
+        "rva",
+        "size"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

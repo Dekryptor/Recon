@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/toolchain-list-0.1.json",
+  "title": "Toolchain list document",
+  "description": "Every profile `recon toolchain list` knows about. Abstract bases are listed too, because a chain reads better when it starts at the base.",
+  "type": "object",
+  "required": [
+    "profiles"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "profile": {
+      "type": "object",
+      "required": [
+        "id",
+        "display_name",
+        "family",
+        "abstract",
+        "chain",
+        "targets",
+        "file"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "family": {
+          "type": "string",
+          "description": "gcc, msvc or clang: what the flags and the ABI look like."
+        },
+        "abstract": {
+          "type": "boolean",
+          "description": "A base other profiles extend; it cannot compile anything."
+        },
+        "extends": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chain": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The inheritance chain, base first."
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Each one written format/arch."
+        },
+        "code_kind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "native",
+            "pcode",
+            null
+          ],
+          "description": "For a profile that describes a Visual Basic 5/6 program, which kind: native for compiled x86, pcode for a stream MSVBVM60.DLL interprets. Null for every other profile."
+        },
+        "file": {
+          "type": "string",
+          "description": "Where the profile was read from."
+        }
+      }
+    }
+  },
+  "properties": {
+    "profiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/profile"
+      }
+    }
+  }
+}

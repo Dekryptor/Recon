@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-exports-0.1.json",
+  "title": "Exports of an image",
+  "description": "One `recon inspect` subcommand's output: exports of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "exports"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "exports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/export"
+      }
+    }
+  },
+  "definitions": {
+    "export": {
+      "type": "object",
+      "required": [
+        "ordinal",
+        "rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "forwarder": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

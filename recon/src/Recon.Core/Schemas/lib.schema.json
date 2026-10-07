@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.example/schemas/lib.schema.json",
+  "title": "Archive members",
+  "description": "The members of a COFF archive (a .lib): what a link can pull in, and which compiler built each object. An archive is not a program, so it has no sections, functions or addresses; what it carries is a bill of materials.",
+  "type": "object",
+  "required": [
+    "file",
+    "members",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path of the archive as it was given."
+    },
+    "sha256": {
+      "type": "string",
+      "description": "Digest of the whole archive, not of any member."
+    },
+    "members": {
+      "type": "array",
+      "description": "One entry per member, in the order they appear in the file.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "size"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The member's name, with the long-name table resolved."
+          },
+          "raw_name": {
+            "type": ["string", "null"],
+            "description": "The name exactly as the member header spells it."
+          },
+          "kind": {
+            "enum": [
+              "linker",
+              "longnames",
+              "object",
+              "import",
+              "unknown"
+            ]
+          },
+          "offset": {
+            "type": "integer",
+            "description": "File offset of the member's contents."
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the member's contents in bytes."
+          },
+          "date": {
+            "type": "integer",
+            "description": "The archive header's date field: a Unix timestamp."
+          },
+          "machine": {
+            "type": ["string", "null"],
+            "description": "For an object or import member: the machine the COFF header names."
+          },
+          "timestamp": {
+            "type": ["integer", "null"],
+            "description": "For an object: the COFF header's TimeDateStamp."
+          },
+          "comp_id": {
+            "type": ["integer", "null"],
+            "description": "For an object that carries one: the raw @comp.id value, (product id << 16) | build."
+          },
+          "comp_tool": {
+            "type": ["string", "null"],
+            "description": "The product id from comp_id, named from the Rich header's table."
+          },
+          "comp_build": {
+            "type": ["integer", "null"],
+            "description": "The build number from comp_id."
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "symbols": {
+            "type": "array",
+            "description": "The object's own symbols, excluding the compiler's bookkeeping ones.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "import_dll": {
+            "type": ["string", "null"],
+            "description": "For an import member: the DLL the symbol comes from."
+          },
+          "import_symbol": {
+            "type": ["string", "null"],
+            "description": "For an import member: the symbol the DLL exports."
+          },
+          "import_ordinal": {
+            "type": ["integer", "null"],
+            "description": "For an import member that imports by number: the ordinal."
+          },
+          "describe": {
+            "type": "string",
+            "description": "One line saying what the member is, in words rather than fields."
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "members",
+        "objects",
+        "imports",
+        "compilers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "members": {
+          "type": "integer"
+        },
+        "objects": {
+          "type": "integer",
+          "description": "Members holding COFF objects: the ones a link pulls code from."
+        },
+        "imports": {
+          "type": "integer",
+          "description": "Short import members: records naming a DLL and a symbol."
+        },
+        "compilers": {
+          "type": "array",
+          "description": "Every compiler the objects name, most-built first, with the object count.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imported_dlls": {
+          "type": "array",
+          "description": "The distinct DLLs the import members point at.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "description": "What could not be read, said out loud rather than dropped.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

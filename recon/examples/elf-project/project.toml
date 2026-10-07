@@ -1,0 +1,72 @@
+schema_version = 1
+
+# A reconstruction project over an ELF image. It is the same shape as sample-project: one original
+# binary, one unit of C that is rebuilt and compared function by function. What is different is that
+# the image is a Linux x86-64 executable, so the toolchain is found from the file itself — the
+# .comment and the DWARF producer name GCC 14, which is the gcc-14-elf64 profile — and the compiler
+# is the one on PATH, which is why local.toml names no install root.
+#
+#   bash tools/build-elf-corpus.sh
+#   recon inventory --project examples/elf-project
+#   recon build     --project examples/elf-project --unit arith
+#   recon report    --project examples/elf-project
+#
+# The reference input is the stripped build of the same source: it stands in for a rebuild that is
+# not finished, which is what a reconstruction looks like while it is being worked on.
+
+[project]
+name = "sample-elf"
+description = "Reconstruction of an x86-64 ELF executable"
+
+[target]
+format = "elf64"
+arch = "x64"
+isa = "x64"
+
+[[input]]
+id = "main"
+role = "original"
+file = "sample-elf64-release"
+sha256 = "f0a1f96619154cc32b43c3005c018a2dd721c60be04a1db759c635ab6cf95560"
+
+[[input]]
+id = "rebuilt"
+role = "reference"
+file = "sample-elf64-stripped"
+sha256 = "6502ba009b51039306b160a2df64a39afcc0f75cd5731e43bbc5a2e0e858e86d"
+
+[paths]
+source = "src"
+include = []
+build = "build"
+
+[analysis]
+min_function_confidence = "low"
+
+[[unit]]
+name = "arith"
+source = "src/arith.c"
+status = "wip"
+
+[[unit.covers]]
+symbol = "add"
+
+[[unit.covers]]
+symbol = "sub_fast"
+
+[[unit.covers]]
+symbol = "mul_std"
+
+[report]
+output = "build/report"
+history = true
+
+# The link step builds an executable, so one of the units has to provide main. A real reconstruction
+# would rebuild the original's main; this one is a stub, which is what "wip" means here.
+[[unit]]
+name = "entry"
+source = "src/entry.c"
+status = "wip"
+
+[[unit.covers]]
+symbol = "main"

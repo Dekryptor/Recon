@@ -1,0 +1,58 @@
+<Project>
+  <PropertyGroup>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)out</ArtifactsPath>
+
+    <!--
+      `RECON_ARTIFACTS` sends every object, binary and test binary somewhere else. Set by
+      `tools/env.sh` in exactly the shape described below for the package cache — a checkout inside
+      `$HOME` with the SDK outside it — because in that shape `$HOME` *is* the workspace that gets
+      snapshotted, and a test build is 1,2xx files and four hundred megabytes of runtime images,
+      compiler intermediates and copied corpora. They are not source, they are rebuilt from source,
+      and a workspace that is copied wholesale pays for them on every save; the snapshot has a budget
+      and this is what went over it. Unset, the output stays in `out/` beside the repository, which is
+      where a normal checkout wants it.
+    -->
+    <ArtifactsPath Condition="'$(RECON_ARTIFACTS)' != ''">$(RECON_ARTIFACTS)</ArtifactsPath>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!--
+    The package cache must not land in the workspace. A build run without `tools/env.sh` uses NuGet's
+    default — `$HOME/.nuget/packages` and `$HOME/.local/share/NuGet/http-cache` — and in this environment
+    `$HOME` *is* the workspace, so that put 1,400 files and half a gigabyte of runtime packages inside the
+    tree that gets snapshotted, twice. Rather than only complaining about it, the cache is sent to the
+    same place `tools/env.sh` uses, which is beside the SDK and outside the tree. Forgetting to source
+    the script is then harmless instead of expensive.
+
+    The condition is the shape this is developed in, not a general rule about caches: the SDK lives
+    outside the tree (`DOTNET_ROOT` set to a directory that is not under `$HOME`) and the repository is
+    inside `$HOME`. On a machine with a system-wide SDK and a checkout in `~/src/...`, `$HOME/.nuget` is
+    the ordinary place for it and none of this applies.
+  -->
+  <PropertyGroup>
+    <_ReconWorkspaceShape>false</_ReconWorkspaceShape>
+    <_ReconWorkspaceShape Condition="$([System.String]::Copy('$(MSBuildThisFileDirectory)').StartsWith('$(HOME)/')) AND '$(DOTNET_ROOT)' != '' AND !$([System.String]::Copy('$(DOTNET_ROOT)').StartsWith('$(HOME)/'))">true</_ReconWorkspaceShape>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(_ReconWorkspaceShape)' == 'true' AND '$(NUGET_PACKAGES)' == ''">
+    <RestorePackagesPath>$(DOTNET_ROOT)/packages</RestorePackagesPath>
+    <!-- The http cache is NuGet's own, not the package root: it defaults to $HOME/.local/share/NuGet
+         whatever NUGET_PACKAGES says, and it is a hundred megabytes of downloaded package bodies. -->
+    <RestoreNoHttpCache>true</RestoreNoHttpCache>
+  </PropertyGroup>
+
+  <!-- If even that is not possible, say so loudly: silently writing into the workspace is the failure. -->
+  <Target Name="ReconPackageCacheOutsideTheTree" BeforeTargets="Restore;Build">
+    <PropertyGroup>
+      <_ReconPackageCache>$(NUGET_PACKAGES)</_ReconPackageCache>
+      <_ReconPackageCache Condition="'$(_ReconPackageCache)' == ''">$(RestorePackagesPath)</_ReconPackageCache>
+      <_ReconPackageCache Condition="'$(_ReconPackageCache)' == ''">$(NuGetPackageRoot)</_ReconPackageCache>
+    </PropertyGroup>
+    <Error Condition="'$(_ReconWorkspaceShape)' == 'true' AND '$(_ReconPackageCache)' != '' AND $([System.String]::Copy('$(_ReconPackageCache)').StartsWith('$(HOME)/'))"
+           Text="the NuGet package cache would go to $(_ReconPackageCache), inside the workspace that is snapshotted and has a file budget: run `. tools/env.sh` before any dotnet command, or set NUGET_PACKAGES yourself." />
+  </Target>
+</Project>

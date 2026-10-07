@@ -1,0 +1,28 @@
+# GCC 4.8 for 32-bit Windows (MinGW). The compiler of choice for older Windows targets: freely
+# available, so byte-exact matching stays realistic.
+schema_version = 1
+id = "gcc-4_8-mingw"
+display_name = "GCC 4.8 (MinGW, 32-bit)"
+family = "gcc"
+extends = "gcc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+[[detect.comment_section]]
+contains = "GCC: (GNU) 4.8"
+
+[[detect.dwarf_producer]]
+producer_contains = "GNU C 4.8"
+
+[compile]
+exe = "bin/gcc.exe"
+default_flags = ["-c", "-g"]
+include_flag = "-I{path}"
+define_flag = "-D{name}"
+output_flag = "-o {obj}"
+
+[link]
+exe = "bin/gcc.exe"
+default_flags = ["-Wl,--no-insert-timestamp"]

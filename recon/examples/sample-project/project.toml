@@ -1,0 +1,30 @@
+schema_version = 1
+
+[project]
+name = "sample"
+description = "Reconstruction of sample-release.exe"
+
+[target]
+format = "pe32"
+arch = "x86"
+isa = "x86"
+# default_toolchain = "msvc-2008"
+
+[[input]]
+id = "main"
+role = "original"
+file = "sample-release.exe"
+sha256 = "84668014ea9bca10617db37a664f31de797d647e2cab3eefd89cd87521b2861c"
+
+[paths]
+source = "src"
+include = ["include"]
+build = "build"
+profiles = ["toolchains"]
+
+[analysis]
+min_function_confidence = "low"
+
+[report]
+output = "build/report"
+history = true

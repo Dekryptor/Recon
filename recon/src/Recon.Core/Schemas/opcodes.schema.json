@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.example/schemas/opcodes.schema.json",
+  "title": "Visual Basic p-code opcodes",
+  "description": "The p-code opcode tables of a Visual Basic 5/6 runtime, each read from the handler the runtime dispatches it to: the handler's address, the runtime functions it calls, and the length of the instruction it reads. A runtime with lead bytes has more than one table \u2014 the primary table indexed by the first byte of an instruction, and one per lead byte, indexed by the byte after it \u2014 and all of them are published, because a lead instruction read from the primary table alone is read wrong. Nothing here is taken from a table somebody wrote down, so a name is only given where the handler's own code gives exactly one.",
+  "type": "object",
+  "required": [
+    "file",
+    "runtime_version",
+    "table_rva",
+    "tables",
+    "summary",
+    "opcodes",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path of the runtime as it was given."
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "runtime_version": {
+      "type": "string",
+      "description": "The version the file declares in its own version resource, as it prints it. This is what makes a set of handlers attributable to a build."
+    },
+    "table_rva": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Where the opcode table was found: the dispatch table whose entries are the handlers of the 256 opcodes."
+    },
+    "dispatch_sites": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many places in the interpreter dispatch through that table."
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "opcodes",
+        "tables",
+        "rows",
+        "unhandled",
+        "named",
+        "distinct_names",
+        "shared_calls",
+        "handlers_analysed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "opcodes": {
+          "type": "integer",
+          "description": "Slots in one table, 256 in every runtime this reads."
+        },
+        "unhandled": {
+          "type": "integer",
+          "description": "Slots the interpreter sends to its shared unhandled-case handler: they exist in the table and nothing is behind them."
+        },
+        "named": {
+          "type": "integer",
+          "description": "Opcodes given a name because their handler calls exactly one thing that is not shared with other opcodes."
+        },
+        "distinct_names": {
+          "type": "integer",
+          "description": "Distinct names derived. Fewer than the names when two opcodes share a handler, which several do."
+        },
+        "shared_calls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Calls made by so many handlers that they cannot be what distinguishes one opcode from another, with the number of handlers. Reported because it is the basis on which a name is derived, and a reader should be able to disagree with it."
+        },
+        "handlers_analysed": {
+          "type": "integer",
+          "description": "Slots whose handler was walked. A slot with no handler at all is not walked."
+        },
+        "tables": {
+          "type": "integer",
+          "description": "Dispatch tables published, the primary table included: one per lead byte plus one."
+        },
+        "rows": {
+          "type": "integer",
+          "description": "Opcode rows published across all the tables."
+        },
+        "with_stack_effect": {
+          "type": "integer",
+          "description": "How many rows have a single stack effect."
+        },
+        "raising": {
+          "type": "integer",
+          "description": "How many rows can raise."
+        },
+        "raiser_rva": {
+          "type": "integer",
+          "description": "Where the runtime's raiser is, as an RVA: the function the handlers' error paths call."
+        }
+      }
+    },
+    "opcodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "opcode",
+          "lead",
+          "table_rva",
+          "handler_rva",
+          "unhandled",
+          "sizes",
+          "instructions",
+          "name",
+          "calls",
+          "internal_calls",
+          "indirect_calls",
+          "basis"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "opcode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "handler_rva": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Where the interpreter dispatches this opcode. Zero when the slot is empty."
+          },
+          "unhandled": {
+            "type": "boolean",
+            "description": "True when the slot goes where the interpreter sends a case it does not implement."
+          },
+          "instruction_size": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Instruction length in bytes, opcode byte included, when every path through the handler gives the same length. Null when the handler's paths disagree or when the length is not decided inside the handler's own code."
+          },
+          "sizes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "The lengths measured, one per way out of the handler. More than one means the instruction's length depends on which way it goes."
+          },
+          "instructions": {
+            "type": "integer",
+            "description": "How many instructions the handler was found to consist of."
+          },
+          "name": {
+            "type": "string",
+            "description": "A name derived from the evidence, when the evidence gives exactly one. Empty otherwise."
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The runtime's exports this handler calls, by the name the file gives them. An import the file names only by number is shown as dll!#n. This is the evidence a name is derived from, so it is reported whether or not a name was derived."
+          },
+          "internal_calls": {
+            "type": "integer",
+            "description": "Calls to code in the runtime that has no export name: the interpreter's own helpers."
+          },
+          "indirect_calls": {
+            "type": "integer",
+            "description": "Calls through a register or a pointer, whose destination the instruction does not state."
+          },
+          "basis": {
+            "type": "string",
+            "description": "Why that name, in words: which call it came from, or why none was derived."
+          },
+          "lead": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 255,
+            "description": "The lead byte that selects the table this row belongs to, or null when the row is the primary table's \u2014 where the opcode is the first byte of the instruction. Where it is set, the opcode is the byte after the lead byte, and the instruction begins with the lead."
+          },
+          "table_rva": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The dispatch table this row was read from."
+          },
+          "counted": {
+            "type": "boolean",
+            "description": "Whether the instruction's length is not one number: its handler loops over operand bytes of its own, so the length is the operand word's. The measured size is then the first pass."
+          },
+          "counted_unit": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "What one pass of that loop consumes, in bytes."
+          },
+          "operand": {
+            "type": "string",
+            "enum": ["none", "data", "slot", "target"],
+            "description": "What the bytes after the opcode are: none when the instruction has no operand, data when the handler reads them as a value, slot when it sign-extends the word and addresses the frame by it, target when it reads them as where control goes. Derived from the handler's own instructions, not from a table of names."
+          },
+          "operand_bytes": {
+            "type": "integer",
+            "description": "How many bytes of operand the handler reads, or -1 when its length is not one number."
+          },
+          "operand_at": {
+            "type": "integer",
+            "description": "Where in the operand the word the kind is about sits, in bytes from the first byte after the opcode; -1 when the kind is not about one word. Not always zero: a For/Next instruction takes its counter's frame slot first and the distance it branches by second."
+          },
+          "operand_slot_at": {
+            "type": "integer",
+            "description": "Where in the operand the word of a frame slot sits, in bytes from the first byte after the opcode; -1 when the handler sign-extends none. Separate from operand_at because an operand can hold both: a For/Next names the frame slot of its counter and then the distance it branches by."
+          },
+          "operand_basis": {
+            "type": "string",
+            "description": "Why the operand is that kind, in words: the instructions that decided it."
+          },
+          "reached_calls": {
+            "type": "array",
+            "description": "Runtime functions the handler reaches through a helper it calls, and did not call itself. Kept apart from calls so that second-hand evidence is visible as second-hand; a name taken from this list says so in basis.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stack_effects": {
+            "type": "array",
+            "description": "What the instruction does to the operand stack, in 4-byte slots: negative for what it takes off, positive for what it leaves. Empty where the handler's own code does not fix the amount; more than one entry where the handler's paths disagree.",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "stack_effect": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "The single stack effect, or null where the handler's code does not fix one or its paths disagree."
+          },
+          "raises": {
+            "type": "boolean",
+            "description": "Whether a path through the handler reaches the runtime's error path \u2014 the address the interpreter jumps to with an error code, or the shared code the arithmetic jumps to on overflow."
+          },
+          "stack_basis": {
+            "type": "string",
+            "description": "Why the stack effect is that number, or why there is none."
+          },
+          "outside_jumps": {
+            "type": "array",
+            "description": "Addresses outside the handler's own code that its paths jump to; the shared code the interpreter owns. Which of them are error paths is decided across the whole runtime.",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tables": {
+      "type": "array",
+      "description": "Every dispatch table the runtime has, the primary table first. A row's table is named by its lead byte: the byte that selects it, which is null for the primary table.",
+      "items": {
+        "type": "object",
+        "required": [
+          "lead",
+          "table_rva",
+          "dispatch_sites",
+          "claimed_by",
+          "opcodes",
+          "measured"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "lead": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 255,
+            "description": "The lead byte that selects this table, or null for the primary table."
+          },
+          "table_rva": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "dispatch_sites": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many places in the interpreter dispatch through this table."
+          },
+          "claimed_by": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "description": "The primary opcodes whose handlers dispatch through this table: the evidence for pairing the lead byte with it."
+          },
+          "opcodes": {
+            "type": "integer",
+            "description": "Slots in this table."
+          },
+          "measured": {
+            "type": "integer",
+            "description": "Rows of this table measured at a single length."
+          }
+        }
+      }
+    }
+  }
+}

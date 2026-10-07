@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-data-0.1.json",
+  "title": "Data symbols of an image",
+  "description": "One `recon inspect` subcommand's output: data symbols of an image. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "symbols",
+    "section_ranges",
+    "named",
+    "total_bytes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "symbols": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/data"
+      }
+    },
+    "section_ranges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/data"
+      }
+    },
+    "named": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_bytes": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "definitions": {
+    "data": {
+      "type": "object",
+      "required": [
+        "rva",
+        "size",
+        "kind",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

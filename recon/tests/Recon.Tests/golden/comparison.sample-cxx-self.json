@@ -1,0 +1,830 @@
+{
+  "schema_version": "0.1",
+  "generator": {
+    "tool": "recon",
+    "version": "1.0.0",
+    "command": "diff"
+  },
+  "left": {
+    "label": "left",
+    "project": "sample-cxx",
+    "project_file": null,
+    "binary": "\u003Crepo\u003E/tests/corpus/msvc/sample-cxx.exe",
+    "sha256": "5a3371bf2ee223541c2517e14674f7365a624828c7b12dd4a3bb0f833b2a97e4",
+    "format": "pe32",
+    "arch": "x86",
+    "image_size": 20480,
+    "entry_rva": 4496,
+    "functions": 23,
+    "debug_kind": "pdb",
+    "toolchain": "clang-19-msvc",
+    "analysis_ms": 0,
+    "inventory_source": "built"
+  },
+  "right": {
+    "label": "right",
+    "project": "sample-cxx",
+    "project_file": null,
+    "binary": "\u003Crepo\u003E/tests/corpus/msvc/sample-cxx.exe",
+    "sha256": "5a3371bf2ee223541c2517e14674f7365a624828c7b12dd4a3bb0f833b2a97e4",
+    "format": "pe32",
+    "arch": "x86",
+    "image_size": 20480,
+    "entry_rva": 4496,
+    "functions": 23,
+    "debug_kind": "pdb",
+    "toolchain": "clang-19-msvc",
+    "analysis_ms": 0,
+    "inventory_source": "built"
+  },
+  "model": {
+    "relocation_classes": {
+      "HIGHLOW": 130
+    },
+    "references_named": 22,
+    "references_unnamed": 30,
+    "references_identified": 2,
+    "relocation_model": {
+      "HIGHLOW": "Absolute"
+    },
+    "reference_classes": {
+      "Absolute": 52,
+      "JumpTable": 2
+    },
+    "matched_by": {
+      "name": 23
+    },
+    "bodies_proven_identical": 23,
+    "similarity_threshold": 0.8,
+    "ignore_padding": true,
+    "difference_limit": 24,
+    "profile": null
+  },
+  "summary": {
+    "functions_left": 23,
+    "functions_right": 23,
+    "matched": 23,
+    "exact": 23,
+    "changed": 0,
+    "folded": 0,
+    "only_left": 0,
+    "only_right": 0,
+    "instructions_left": 213,
+    "instructions_right": 213,
+    "instructions_equal": 213,
+    "score": 1,
+    "data_symbols": 0,
+    "data_identical": 27,
+    "data_changed": 0
+  },
+  "functions": [
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001000",
+        "name": "add",
+        "rva": 4096,
+        "size": 9,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001000",
+        "name": "add",
+        "rva": 4096,
+        "size": 9,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 3,
+        "right": 3,
+        "equal": 3,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001010",
+        "name": "mul_std",
+        "rva": 4112,
+        "size": 12,
+        "section": ".text",
+        "calling_convention": "stdcall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001010",
+        "name": "mul_std",
+        "rva": 4112,
+        "size": 12,
+        "section": ".text",
+        "calling_convention": "stdcall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 3,
+        "right": 3,
+        "equal": 3,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001020",
+        "name": "sub_fast",
+        "rva": 4128,
+        "size": 5,
+        "section": ".text",
+        "calling_convention": "fastcall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001020",
+        "name": "sub_fast",
+        "rva": 4128,
+        "size": 5,
+        "section": ".text",
+        "calling_convention": "fastcall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 3,
+        "right": 3,
+        "equal": 3,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001030",
+        "name": "dispatch",
+        "rva": 4144,
+        "size": 94,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": [
+          "has_jump_table"
+        ]
+      },
+      "right": {
+        "id": "f_001030",
+        "name": "dispatch",
+        "rva": 4144,
+        "size": 94,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": [
+          "has_jump_table"
+        ]
+      },
+      "instructions": {
+        "left": 29,
+        "right": 29,
+        "equal": 29,
+        "relocated": 8
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001090",
+        "name": "fib",
+        "rva": 4240,
+        "size": 63,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001090",
+        "name": "fib",
+        "rva": 4240,
+        "size": 63,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 36,
+        "right": 36,
+        "equal": 36,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0010d0",
+        "name": "loop_sum",
+        "rva": 4304,
+        "size": 117,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0010d0",
+        "name": "loop_sum",
+        "rva": 4304,
+        "size": 117,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 58,
+        "right": 58,
+        "equal": 58,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001150",
+        "name": "measure",
+        "rva": 4432,
+        "size": 27,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001150",
+        "name": "measure",
+        "rva": 4432,
+        "size": 27,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 14,
+        "right": 14,
+        "equal": 14,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001170",
+        "name": "measure_both",
+        "rva": 4464,
+        "size": 30,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001170",
+        "name": "measure_both",
+        "rva": 4464,
+        "size": 30,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 10,
+        "right": 10,
+        "equal": 10,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001190",
+        "name": "mainCRTStartup",
+        "rva": 4496,
+        "size": 29,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001190",
+        "name": "mainCRTStartup",
+        "rva": 4496,
+        "size": 29,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 7,
+        "right": 7,
+        "equal": 7,
+        "relocated": 4
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0011b0",
+        "name": "Circle::~Circle",
+        "rva": 4528,
+        "size": 39,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0011b0",
+        "name": "Circle::~Circle",
+        "rva": 4528,
+        "size": 39,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 13,
+        "right": 13,
+        "equal": 13,
+        "relocated": 4
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0011e0",
+        "name": "Circle::area",
+        "rva": 4576,
+        "size": 10,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0011e0",
+        "name": "Circle::area",
+        "rva": 4576,
+        "size": 10,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 4,
+        "right": 4,
+        "equal": 4,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0011f0",
+        "name": "Circle::perimeter",
+        "rva": 4592,
+        "size": 9,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0011f0",
+        "name": "Circle::perimeter",
+        "rva": 4592,
+        "size": 9,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 4,
+        "right": 4,
+        "equal": 4,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001200",
+        "name": "Shape::~Shape",
+        "rva": 4608,
+        "size": 2,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001200",
+        "name": "Shape::~Shape",
+        "rva": 4608,
+        "size": 2,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 1,
+        "right": 1,
+        "equal": 1,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001210",
+        "name": "Shape::area",
+        "rva": 4624,
+        "size": 3,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001210",
+        "name": "Shape::area",
+        "rva": 4624,
+        "size": 3,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 2,
+        "right": 2,
+        "equal": 2,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001220",
+        "name": "Square::~Square",
+        "rva": 4640,
+        "size": 39,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001220",
+        "name": "Square::~Square",
+        "rva": 4640,
+        "size": 39,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 13,
+        "right": 13,
+        "equal": 13,
+        "relocated": 4
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001250",
+        "name": "Square::area",
+        "rva": 4688,
+        "size": 7,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001250",
+        "name": "Square::area",
+        "rva": 4688,
+        "size": 7,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 3,
+        "right": 3,
+        "equal": 3,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001260",
+        "name": "Square::perimeter",
+        "rva": 4704,
+        "size": 7,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001260",
+        "name": "Square::perimeter",
+        "rva": 4704,
+        "size": 7,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 3,
+        "right": 3,
+        "equal": 3,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001270",
+        "name": "operator delete",
+        "rva": 4720,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001270",
+        "name": "operator delete",
+        "rva": 4720,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 1,
+        "right": 1,
+        "equal": 1,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001280",
+        "name": "operator delete",
+        "rva": 4736,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001280",
+        "name": "operator delete",
+        "rva": 4736,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 1,
+        "right": 1,
+        "equal": 1,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_001290",
+        "name": "type_info::~type_info",
+        "rva": 4752,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_001290",
+        "name": "type_info::~type_info",
+        "rva": 4752,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 1,
+        "right": 1,
+        "equal": 1,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0012a0",
+        "name": "touch_type_info",
+        "rva": 4768,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0012a0",
+        "name": "touch_type_info",
+        "rva": 4768,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 1,
+        "right": 1,
+        "equal": 1,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0012b0",
+        "name": "_purecall",
+        "rva": 4784,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0012b0",
+        "name": "_purecall",
+        "rva": 4784,
+        "size": 1,
+        "section": ".text",
+        "calling_convention": "cdecl",
+        "flags": []
+      },
+      "instructions": {
+        "left": 1,
+        "right": 1,
+        "equal": 1,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    },
+    {
+      "status": "exact",
+      "match": "name",
+      "score": 1,
+      "moved": false,
+      "left": {
+        "id": "f_0012c0",
+        "name": "type_info::~type_info",
+        "rva": 4800,
+        "size": 5,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "right": {
+        "id": "f_0012c0",
+        "name": "type_info::~type_info",
+        "rva": 4800,
+        "size": 5,
+        "section": ".text",
+        "calling_convention": "thiscall",
+        "flags": []
+      },
+      "instructions": {
+        "left": 2,
+        "right": 2,
+        "equal": 2,
+        "relocated": 0
+      },
+      "differences": [],
+      "notes": []
+    }
+  ],
+  "data": {
+    "identical": 27,
+    "changed": 0,
+    "only_left": 0,
+    "only_right": 0,
+    "symbols": []
+  },
+  "problems": []
+}

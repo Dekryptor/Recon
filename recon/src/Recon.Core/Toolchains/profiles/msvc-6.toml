@@ -1,0 +1,55 @@
+# Visual C++ 6.0, the compiler of Visual Studio 98. This is the toolset Visual Basic 6 is built
+# with: VB6 programs are compiled by the Visual Basic front end and then by the Visual C++ back end,
+# so a VB6 target and its C/C++ helper libraries are attributed to one of these two profiles and to
+# nothing else. It is also what built the tools in a Visual Studio 98 installation, which is where
+# the numbers below were read.
+#
+# Measured, not assumed — every figure here was printed by `recon inspect producers` from a real file:
+#   LINK.EXE (1999-06-02), C2.EXE (2000-07-15), CVPACK.EXE (1998-06-17):
+#     linker version 6.0 in all three;
+#     Rich header: product id 0x0004, the Visual Studio 98 linker, at build 8447 (LINK.EXE),
+#       8047 (C2.EXE) and 8168 (CVPACK.EXE), five objects each;
+#     the same headers also carry 0x000A/0x000B (cl C and C++), 0x000E (masm 6.13) and 0x0013
+#       (the Visual Studio 97 linker, from import libraries built before this toolset shipped).
+#
+# No build range is written for the linker record: three builds were measured and a service pack
+# would bring a fourth, so the rule matches the product id and leaves the build to the report.
+schema_version = 1
+id = "msvc-6"
+display_name = "Microsoft Visual C++ 6.0 (Visual Studio 98)"
+family = "msvc"
+extends = "msvc-base"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+# The optional header's linker version: 6.0 for every Visual Studio 98 tool measured.
+[[detect.linker_version]]
+min = "6.0"
+max = "6.99"
+
+# Product id 0x0004 is the Visual Studio 98 linker. It is identified by id, not by position: in
+# these files the last record is the resource converter (0x0006), and in a Visual Basic program the
+# last record is the Basic compiler.
+[[detect.rich_header]]
+id = 4
+role = "linker"
+
+[compile]
+exe = "bin/cl.exe"
+default_flags = ["/c", "/nologo", "/Zi"]
+include_flag = "/I{path}"
+define_flag = "/D{name}"
+output_flag = "/Fo{obj}"
+env = { INCLUDE = "{root}/include;{root}/atlmfc/include" }
+
+# /Od disables optimization, /O1 favours size, /O2 speed, /Ox is full optimization. They are separate
+# flags rather than a level's argument, which is why they are listed and not templated.
+[compile.optimization]
+levels = ["/Od", "/O1", "/O2", "/Ox"]
+
+[link]
+exe = "bin/link.exe"
+default_flags = ["/nologo", "/DEBUG"]
+output_flag = "/OUT:{exe}"

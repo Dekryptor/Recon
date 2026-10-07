@@ -1,0 +1,966 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/inventory-0.1.json",
+  "title": "Recon inventory",
+  "description": "Function, data and relocation inventory for one binary. Addresses are RVAs unless a field name says otherwise. Unknown or unresolved information is written explicitly, never omitted.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generator",
+    "project",
+    "binary",
+    "sections",
+    "functions",
+    "data",
+    "statistics",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "project": {
+      "$ref": "#/$defs/project"
+    },
+    "binary": {
+      "$ref": "#/$defs/binary"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/import"
+      }
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/export"
+      }
+    },
+    "relocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relocation"
+      }
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/function"
+      }
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/data"
+      }
+    },
+    "jump_tables": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/jump_table"
+      }
+    },
+    "xrefs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/xref"
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "generator": {
+      "type": "object",
+      "required": [
+        "tool",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "name",
+        "root",
+        "project_file"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "root": {
+          "type": "string"
+        },
+        "project_file": {
+          "type": "string"
+        }
+      }
+    },
+    "binary": {
+      "type": "object",
+      "required": [
+        "format",
+        "arch",
+        "isa",
+        "sha256",
+        "image_base",
+        "entry_rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "enum": [
+            "pe32",
+            "pe64",
+            "elf32",
+            "elf64",
+            "macho32",
+            "macho64"
+          ]
+        },
+        "arch": {
+          "type": "string"
+        },
+        "isa": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "file": {
+          "type": "string"
+        },
+        "image_base": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "entry_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size_of_image": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "subsystem": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dll": {
+          "type": "boolean"
+        },
+        "linker_version": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "has_relocations": {
+          "type": "boolean"
+        },
+        "tls_callbacks": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "debug": {
+          "$ref": "#/$defs/debug"
+        },
+        "producers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/producer"
+          }
+        },
+        "toolchain_suggestions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/toolchain_suggestion"
+          }
+        },
+        "configured_toolchain": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "vb6": {
+          "$ref": "#/$defs/vb6"
+        }
+      }
+    },
+    "debug": {
+      "type": "object",
+      "required": [
+        "kind",
+        "symbols",
+        "functions",
+        "compilands"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "The source the names came from first: DWARF, or the ELF or Mach-O symbol table inside the image, a PDB or map file beside it. When several contributed, `sources` lists them all.",
+          "enum": [
+            "pdb",
+            "coff",
+            "map",
+            "dwarf",
+            "elf",
+            "macho",
+            "none"
+          ]
+        },
+        "sources": {
+          "description": "Every source that named a symbol in this image, in no particular order. A Linux binary usually has two: DWARF for the code the compiler described and the symbol table for what it did not.",
+          "type": "array",
+          "items": {
+            "enum": [
+              "pdb",
+              "coff",
+              "map",
+              "dwarf",
+              "elf",
+              "macho",
+              "export",
+              "entry_point",
+              "tls_callback",
+              "runtime_callback",
+              "call_target",
+              "prologue",
+              "jump_table_target",
+              "pcode_procedure",
+              "import_thunk",
+              "signature",
+              "config"
+            ]
+          }
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "age": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "embedded_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matches_binary": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "symbols": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "functions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "compilands": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "required": [
+        "kind",
+        "tool",
+        "matches"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "toolchain_suggestion": {
+      "type": "object",
+      "required": [
+        "id",
+        "confidence",
+        "scope",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": [
+        "name",
+        "rva",
+        "virtual_size",
+        "raw_size",
+        "raw_offset",
+        "characteristics",
+        "flags",
+        "code"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "virtual_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "characteristics": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "code": {
+          "type": "boolean"
+        }
+      }
+    },
+    "import": {
+      "type": "object",
+      "required": [
+        "dll",
+        "iat_rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dll": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ordinal": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "iat_rva": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "export": {
+      "type": "object",
+      "required": [
+        "ordinal",
+        "rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "forwarder": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "relocation": {
+      "type": "object",
+      "required": [
+        "rva",
+        "kind",
+        "width",
+        "raw_value",
+        "target_rva"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "raw_value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_rva": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "in_function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "in_data": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "range": {
+      "type": "object",
+      "required": [
+        "rva",
+        "size"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "toolchain_ref": {
+      "type": "object",
+      "required": [
+        "id",
+        "confidence",
+        "evidence",
+        "configured"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "configured": {
+          "type": "boolean"
+        }
+      }
+    },
+    "calling_convention": {
+      "type": "object",
+      "required": [
+        "value",
+        "confidence",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "enum": [
+            "cdecl",
+            "stdcall",
+            "fastcall",
+            "thiscall",
+            "vectorcall",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "function": {
+      "type": "object",
+      "required": [
+        "id",
+        "ranges",
+        "section",
+        "isa",
+        "toolchain",
+        "found_by",
+        "confidence",
+        "calling_convention",
+        "flags",
+        "aliases",
+        "unknowns"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^f_[0-9a-f]+$"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "demangled": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ranges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/range"
+          },
+          "minItems": 1
+        },
+        "section": {
+          "type": "string"
+        },
+        "isa": {
+          "type": "string"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "toolchain": {
+          "$ref": "#/$defs/toolchain_ref"
+        },
+        "found_by": {
+          "description": "Every source that named this address as a function's start. `elf` is the ELF symbol table and `macho` the Mach-O one, which is what a binary has when it has no DWARF. `pdata` is the PE exception directory, which names nothing — it states that a function is there and where it ends — so it can be the only entry in this list.",
+          "type": "array",
+          "items": {
+            "enum": [
+              "pdb",
+              "dwarf",
+              "coff",
+              "elf",
+              "macho",
+              "map",
+              "export",
+              "entry_point",
+              "tls_callback",
+              "runtime_callback",
+              "call_target",
+              "prologue",
+              "pdata",
+              "jump_table_target",
+              "pcode_procedure",
+              "import_thunk",
+              "signature",
+              "config"
+            ]
+          }
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "calling_convention": {
+          "$ref": "#/$defs/calling_convention"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "import_thunk": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unknowns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "rva",
+        "size",
+        "kind",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "jump_table": {
+      "type": "object",
+      "required": [
+        "rva",
+        "entries",
+        "kind",
+        "owner",
+        "used_at_rva",
+        "targets"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "entries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string"
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "used_at_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "xref": {
+      "type": "object",
+      "required": [
+        "from_rva",
+        "to_rva",
+        "kind",
+        "via_reloc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "to_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "enum": [
+            "call",
+            "jump",
+            "data_read",
+            "data_write",
+            "data_ref",
+            "import_call",
+            "import_ref",
+            "reloc"
+          ]
+        },
+        "via_reloc": {
+          "type": "boolean"
+        },
+        "in_function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to_function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "vb6": {
+      "type": "object",
+      "title": "Visual Basic 5/6 header",
+      "description": "The VB5! structure a Visual Basic 5 or 6 program's entry point points at. It is absent for every other kind of binary. `is_pcode` is true when `native_code_rva` is 0, which is what p-code means: the code region holds tokens for the MSVBVM60 interpreter rather than x86 instructions.",
+      "additionalProperties": false,
+      "required": [
+        "signature",
+        "header_rva",
+        "runtime_build",
+        "language_dll",
+        "runtime_dll_version",
+        "language_id",
+        "template_version",
+        "code_start_rva",
+        "code_end_rva",
+        "exception_handler_rva",
+        "native_code_rva",
+        "is_pcode"
+      ],
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "Always VB5!, including in a VB6 program."
+        },
+        "header_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runtime_build": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "language_dll": {
+          "type": "string",
+          "description": "For example VB6DE.DLL."
+        },
+        "runtime_dll_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "language_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "template_version": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "500 (0x1F4) for a Visual Basic 6 program."
+        },
+        "code_start_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "code_end_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exception_handler_rva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "native_code_rva": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "0 for a p-code program."
+        },
+        "is_pcode": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

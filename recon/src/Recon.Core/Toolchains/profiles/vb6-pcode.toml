@@ -1,0 +1,83 @@
+# Visual Basic 6.0, compiled to p-code.
+#
+# A p-code program is not compiled to machine code at all: the VB6 compiler emits a stream of tokens
+# and the program carries MSVBVM60.DLL as its interpreter, which reads that stream at run time. There
+# are therefore no functions in the image for a rebuild to reproduce and no instruction set for the
+# decoder to read — `recon pcode` reads the streams, `recon inventory` reads the method tables — and
+# that is what this profile says about a program, rather than describing a compilation that did not
+# happen.
+#
+# Everything in it below the header rule is inherited from vb6-native, because it is the same
+# toolchain: the same Visual Basic 6 IDE, the same Visual Studio 98 linker, the same runtime. What
+# was measured on the 42 p-code programs of the corpus is that the inherited rules *cannot* tell the
+# two apart, and why:
+#
+#   recon inspect producers <program>   (all 42 programs)
+#     rich_header          vb60    9782  1   prod_id=0x000D build=9782 (last entry)
+#     linker_version       link    6.0       optional header = 6.0
+#     import_dll           runtime           MSVBVM60.DLL        (the only import)
+#
+#   recon vb6 --json <program>          (all 42 programs)
+#     header.signature      VB5!
+#     header.runtime_build  9782
+#     project.template_version 500        (VB6)
+#     project.native_code_rva  0          (p-code)
+#
+# Three things about that are worth writing down, because each one changed a rule:
+#
+# 1. **A p-code program's Rich header holds exactly one record.** All 42 carry one entry, product id
+#    0x000D (the table's `vb60`), count 1. A native VB6 program's header instead holds three — the
+#    assembler's 0x000E, one 0x0009 per Basic object (36 of them in VISDATA.EXE), and the same
+#    0x000D — which is the bill of materials the profile it inherits matches. That difference is real
+#    but it is not what this file matches on: `recon vb6 --json` reads the same build number out of
+#    the header (`header.runtime_build`, 9782 in all 42) as the Rich record carries, but the two are
+#    not two spellings of one number — VISDATA.EXE carries a vb60 record at 8167 while its header says
+#    8169 — so the rule matches the product id and the build numbers are written down as measured
+#    values rather than as a range. A rule naming 9782 would describe 42 programs from one host.
+# 2. **The linker version is the same 6.0**, which is why `msvc-6` matches every p-code program on
+#    that evidence alone (`recon inspect producers` says so: `msvc-6: medium via linker_version`).
+#    That is a true statement about a wrong thing: no Visual C++ 6.0 compiler produced these
+#    programs, and the profile the header points at says so with four kinds of evidence against one.
+# 3. **The runtime a program was built against is not the one on this machine.** These 42 programs
+#    ask for runtime build 9782; `msvbvm60.dll` here reports 6.00.9848 (build 9848), so the two are
+#    printed side by side by `recon pcode` and named for where each came from — the header's
+#    `wRuntimeBuild` and the file's version resource — rather than compared behind the reader's back. Its instruction lengths come from the interpreter in front of it, and
+#    with this one it decodes all 680 procedures of the corpus exactly — 222 exactly and 458 with the
+#    compiler's own padding, none with two readings and none unreadable — which is the check that the
+#    lengths are the runtime's behaviour and not a number copied from somewhere.
+#
+# There is no [compile] section and no [link] section, and neither is missing work: no command here
+# can rebuild a p-code program, because the compiler that produced it is a Visual Basic 6 IDE on
+# Windows and what it emits is interpreter input. A profile with no optimization levels is also what
+# `recon permute --flags` reports when it has no flags to try, which is the honest answer for a
+# program that was never compiled by an optimizing compiler at all.
+#
+# Measured with `recon pcode` over the corpus: 680 procedures, 55,135 instructions, 0 problems; the
+# program named HexScroll in a project of its own inventories as 23 functions with the extent each
+# procedure's descriptor states.
+schema_version = 1
+id = "vb6-pcode"
+display_name = "Visual Basic 6.0 (p-code)"
+family = "msvc"
+extends = "vb6-native"
+
+[[targets]]
+format = "pe32"
+arch = "x86"
+
+# The whole of what is specific to this profile: the program says it has no native code, so what it
+# holds is a stream for MSVBVM60.DLL. `ProjectInfo.aNativeCode == 0` is the field, and it is read
+# before anything else — `binary.isa` is `vb6-pcode` for exactly these programs.
+[[detect.vb6_header]]
+kind = "pcode"
+
+# The runtime that interprets it, named by the same file. This is already in the inherited rule set
+# (vb6-native matches MSVBVM60.DLL too, as does any VB6 program) and is repeated here as the one
+# statement this profile adds about the code: a p-code program is a program *for* that DLL.
+[[detect.import_dll]]
+contains = "msvbvm60"
+
+# No debug information, for the reason the inherited profile gives: the Visual Basic compiler writes
+# no PDB and no CodeView record for what it generates, and a p-code program has not even that.
+[debug]
+format = "none"

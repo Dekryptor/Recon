@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/toolchain-check-0.1.json",
+  "title": "Toolchain check document",
+  "description": "One toolchain, as `recon toolchain check` resolves it on this machine: the same object `recon verify` puts in toolchains[].",
+  "type": "object",
+  "required": ["id", "root", "root_exists", "files_checked", "ok"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "root": { "type": "string", "description": "Empty when the toolchain has no install root: its tools are looked up on PATH." },
+    "root_exists": { "type": "boolean" },
+    "cc": { "type": ["string", "null"], "description": "The compiler, as it was resolved — including the case where it was found on PATH." },
+    "link": { "type": ["string", "null"] },
+    "cc_problem": { "type": ["string", "null"] },
+    "link_problem": { "type": ["string", "null"] },
+    "files_checked": { "type": "integer", "minimum": 0, "description": "How many of the profile's [install] files were hashed. Zero when there is no root to hash against." },
+    "files_missing": { "type": "array", "items": { "type": "string" } },
+    "files_mismatched": { "type": "array", "items": { "type": "string" } },
+    "ok": { "type": "boolean" }
+  }
+}

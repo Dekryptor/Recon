@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.invalid/schemas/progress-0.1.json",
+  "title": "Recon progress report",
+  "description": "How far along a reconstruction is, derived from a comparison and from the units' covers in project.toml. Nothing here is estimated: every number is a count of functions or instructions the comparison already decided about. `history.jsonl` holds one snapshot object per line, in this document's `history` form.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generator",
+    "project",
+    "comparison",
+    "totals",
+    "units",
+    "uncovered",
+    "history",
+    "notes",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "generator": { "$ref": "#/$defs/generator" },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "root", "project_file"],
+      "properties": {
+        "name": { "type": "string" },
+        "root": { "type": "string" },
+        "project_file": { "type": "string" }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["left", "right", "score"],
+      "properties": {
+        "left": { "type": "string" },
+        "right": { "type": "string" },
+        "left_sha256": { "type": ["string", "null"] },
+        "right_sha256": { "type": ["string", "null"] },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "toolchain": { "type": ["string", "null"] }
+      }
+    },
+    "totals": { "$ref": "#/$defs/totals" },
+    "units": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unit" }
+    },
+    "uncovered": { "$ref": "#/$defs/counts" },
+    "previous": { "$ref": "#/$defs/snapshot" },
+    "history": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/snapshot" }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "problems": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": { "type": "string" },
+        "version": { "type": "string" },
+        "command": { "type": ["string", "null"] },
+        "generated_at": { "type": ["string", "null"] }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "equal", "changed", "missing"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "equal": { "type": "integer", "minimum": 0 },
+        "changed": { "type": "integer", "minimum": 0 },
+        "missing": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "cover": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["functions", "unresolved"],
+      "properties": {
+        "symbol": { "type": ["string", "null"] },
+        "rva": { "type": ["integer", "null"], "minimum": 0 },
+        "size": { "type": ["integer", "null"], "minimum": 0 },
+        "functions": { "type": "integer", "minimum": 0 },
+        "unresolved": { "type": "boolean" }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "source",
+        "status",
+        "provider",
+        "toolchain",
+        "covers",
+        "functions",
+        "instructions",
+        "missing_functions",
+        "notes"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "source": { "type": "string" },
+        "status": {
+          "enum": ["not_started", "wip", "matched", "approx", "library", "skip"]
+        },
+        "provider": { "enum": ["rebuilt", "original"] },
+        "toolchain": { "type": "string" },
+        "covers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/cover" }
+        },
+        "functions": { "$ref": "#/$defs/counts" },
+        "instructions": { "$ref": "#/$defs/counts" },
+        "progress": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "missing_functions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instructions_original",
+        "instructions_rebuilt",
+        "instructions_equal",
+        "instruction_exact",
+        "verified",
+        "similarity",
+        "functions_original",
+        "functions_exact",
+        "functions_changed",
+        "functions_only_left",
+        "functions_only_right",
+        "functions_folded",
+        "data_symbols",
+        "data_identical",
+        "data_changed"
+      ],
+      "properties": {
+        "instructions_original": { "type": "integer", "minimum": 0 },
+        "instructions_rebuilt": { "type": "integer", "minimum": 0 },
+        "instructions_equal": { "type": "integer", "minimum": 0 },
+        "instruction_exact": { "type": "number", "minimum": 0, "maximum": 1 },
+        "verified": { "type": "number", "minimum": 0, "maximum": 1 },
+        "similarity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "functions_original": { "type": "integer", "minimum": 0 },
+        "functions_exact": { "type": "integer", "minimum": 0 },
+        "functions_changed": { "type": "integer", "minimum": 0 },
+        "functions_only_left": { "type": "integer", "minimum": 0 },
+        "functions_only_right": { "type": "integer", "minimum": 0 },
+        "functions_folded": { "type": "integer", "minimum": 0 },
+        "data_symbols": { "type": "integer", "minimum": 0 },
+        "data_identical": { "type": "integer", "minimum": 0 },
+        "data_changed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "score",
+        "instructions_equal",
+        "instructions_original",
+        "functions_exact",
+        "functions_original",
+        "units"
+      ],
+      "properties": {
+        "at": { "type": "string" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "instructions_equal": { "type": "integer", "minimum": 0 },
+        "instructions_original": { "type": "integer", "minimum": 0 },
+        "functions_exact": { "type": "integer", "minimum": 0 },
+        "functions_original": { "type": "integer", "minimum": 0 },
+        "units": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "progress": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/init-0.1.json",
+  "title": "Init document",
+  "description": "What `recon init` created: the project directory, every file it wrote, and the binary it was told about (which it never copies).",
+  "type": "object",
+  "required": ["schema_version", "directory", "name", "project_file", "inputs_directory", "files"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "command": { "type": "string" },
+    "tool_version": { "type": "string" },
+    "directory": { "type": "string", "description": "The project directory, absolute." },
+    "name": { "type": "string", "description": "[project] name in the generated project.toml." },
+    "project_file": { "type": "string" },
+    "local_file": { "type": ["string", "null"], "description": "Null when local.toml already existed: init never overwrites the machine's own." },
+    "inputs_directory": { "type": "string" },
+    "profiles_directory": { "type": ["string", "null"] },
+    "profiles_written": { "type": "integer", "minimum": 0 },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind", "written"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "kind": { "type": "string", "enum": ["project", "local", "profile", "gitignore"] },
+          "written": { "type": "boolean", "description": "False when the file was already there and left alone." }
+        }
+      }
+    },
+    "binary": {
+      "description": "The binary named with --binary, hashed and ready to paste into a project.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["file", "sha256", "expected_at", "copied"],
+          "additionalProperties": false,
+          "properties": {
+            "file": { "type": "string" },
+            "sha256": { "type": "string" },
+            "expected_at": { "type": "string", "description": "Where recon verify will look for it, which is not where it is now." },
+            "copied": { "type": "boolean" }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  }
+}

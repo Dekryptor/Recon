@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://recon.tool/schemas/inspect-producers-0.1.json",
+  "title": "Producers of an image, and the toolchain they suggest",
+  "description": "One `recon inspect` subcommand's output: producers of an image, and the toolchain they suggest. The same objects the inventory document carries, so the definitions here are the inventory's own.",
+  "type": "object",
+  "required": [
+    "producers",
+    "suggestions",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "producers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/producer"
+      }
+    },
+    "suggestions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/toolchain_suggestion"
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "toolchain_suggestion": {
+      "type": "object",
+      "required": [
+        "id",
+        "confidence",
+        "scope",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "required": [
+        "kind",
+        "tool",
+        "matches"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
