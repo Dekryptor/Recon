@@ -161,6 +161,11 @@
           "type": "integer",
           "minimum": 0
         },
+        "tail_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Bytes after the section's own bytes that the plan emits as uninitialised space, because the original's virtual size is larger than its raw size."
+        },
         "source": {
           "type": [
             "string",

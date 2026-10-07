@@ -16,7 +16,12 @@ namespace Recon.Tests;
 /// corpus with the machine's own gcc, because the loop's only reason to exist is a real compiler
 /// producing real bytes; with no compiler on PATH they pass having done nothing, the way the other
 /// toolchain tests do.
+///
+/// They also need the corpus itself, which is not in a checkout: tagged so that a host which cannot
+/// build <c>tools/build-elf-corpus.sh</c>'s output (Windows has no ELF compiler) can leave them out by
+/// trait instead of watching them fail.
 /// </summary>
+[Trait("requires", "elf-corpus")]
 public class PermuteRunnerTests
 {
     /// <summary>The example project's reconstruction of the corpus' three functions.</summary>

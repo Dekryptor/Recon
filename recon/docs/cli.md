@@ -312,6 +312,26 @@ List the members of a COFF archive (a .lib): the objects a link can pull in, the
 | `--json` | see `--help` for details |
 | `--check-schema` | see `--help` for details |
 
+## `strings`
+
+```
+recon strings <file> [--min=N] [--encoding=NAME] [--section=NAME] [--filter=TEXT] [--unique] [--limit=N] [--all] [--check-schema] [--json]
+```
+
+List the text a binary carries: every run of printable characters, with the file offset, the address a section maps it to, and the section it lies in. What counts as printable is strings(1)'s set — 0x20 to 0x7E plus tab — and a run needs no terminator, so a literal that fills its section exactly is found too. The offset is what a hex editor wants and the rva is what a disassembler wants; feeding that rva back to `recon disasm` or `recon inspect xrefs` is how a message leads to the code that prints it. --encoding takes ascii, utf16 or both; --section narrows the scan to one section; --filter keeps the runs whose text contains a substring, case-insensitively; --unique keeps the first of each distinct text; --limit and --all are the text view's, since a document is not a screen.
+
+| option | meaning |
+| --- | --- |
+| `--min=N` | see `--help` for details |
+| `--encoding=NAME` | see `--help` for details |
+| `--section=NAME` | see `--help` for details |
+| `--filter=TEXT` | see `--help` for details |
+| `--unique` | see `--help` for details |
+| `--limit=N` | see `--help` for details |
+| `--all` | see `--help` for details |
+| `--check-schema` | see `--help` for details |
+| `--json` | see `--help` for details |
+
 ## `hash`
 
 ```

@@ -377,7 +377,13 @@ public class ToolchainProfileTests
         var pe64 = registry.All("pe64", "x64").Select(p => p.Id).ToList();
 
         Assert.Contains("msvc-2008", pe32);
-        Assert.Empty(pe64);
+
+        // One profile applies to a 64-bit MSVC-ABI image and it is clang-19-msvc, which declares pe64
+        // for the same reason it declares pe32: the relink path needs a profile that names clang-cl
+        // and lld-link to place sections in an x64 image, and which toolchain *built* it is a
+        // detection question, not a target-list one. (This used to be empty, which stopped being true
+        // when that profile gained its 64-bit target.)
+        Assert.Equal(["clang-19-msvc"], pe64);
     }
 
     [Fact]

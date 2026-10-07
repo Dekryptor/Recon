@@ -122,6 +122,10 @@ recon permute --function add --json --check-schema   # the same run, for a scrip
 # a library beside the binary: the objects a link can pull in, and what compiled them
 recon lib inputs/VBAEXE6.LIB       # members, and each object's @comp.id
 
+# the text in a binary: where it lies, so the message leads to the code that prints it
+recon strings inputs/sample.exe --filter "%s" --json --check-schema
+recon strings inputs/sample.exe --encoding utf16 --section .rdata --unique
+
 # a Visual Basic 6 program: its objects, their kinds, and the path it was built in
 recon vb6 inputs/VISDATA.EXE
 recon opcodes inputs/msvbvm60.dll # the runtime's 256 p-code opcodes, from their handlers
@@ -227,7 +231,7 @@ tests/corpus/            corpus sources (generated binaries are ignored)
 tests/tools/             the two Python oracles
 tools/                   env.sh, corpus builders, the acceptance harness
 docs/                    cli.md (generated), m1-status.md … m6-status.md, signatures-status.md,
-                         toolchains.md
+                         toolchains.md, windows.md
 ```
 
 ## Design decisions worth knowing
@@ -260,6 +264,8 @@ docs/                    cli.md (generated), m1-status.md … m6-status.md, sign
   and the six corpus binaries that come back identical.
 * [`docs/m6-status.md`](docs/m6-status.md) — the ELF and Mach-O loaders, the analysis over them, and
   the profiles that name who built one.
+* [`docs/windows.md`](docs/windows.md) — what runs on a Windows 10 machine unchanged, what has to be
+  installed, the three defects that were only visible from there, and what has not been tested on one.
 * [`docs/cli.md`](docs/cli.md) — generated command reference (`recon gen-docs`).
 * [`docs/agent-interface.md`](docs/agent-interface.md) — the JSON contract for driving it from a
   program: one document per run, the exit codes, the error document, and the loop to follow.

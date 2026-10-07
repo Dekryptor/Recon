@@ -286,6 +286,12 @@ public static class HeaderCompletion
         // the whole file, so when the relink is exact it comes out the original's own value - which is
         // both the right answer and a statement about every other byte in the image. When it differs
         // the field still describes the image it sits in, rather than the image it was copied from.
+        // It is not reported in the change list: that list is what was *copied* from the original and
+        // is printed under that name, and a computed field is not a copy. An entry that was always
+        // there also made the "nothing to copy" answer unreachable, for an image whose header the
+        // linker had in fact completed. The write still has to happen when nothing else changed, so
+        // it is remembered separately.
+        bool checksumWritten = false;
         void FinishChecksum()
         {
             if (optionalSize < 68)
@@ -298,11 +304,8 @@ public static class HeaderCompletion
             if (ReadUInt32(bytes, at) != sum)
             {
                 WriteUInt32(bytes, at, sum);
+                checksumWritten = true;
             }
-
-            changes.Add(sum == original.Checksum
-                ? $"checksum 0x{sum:x} (computed over the relinked file, and it is the original's)"
-                : $"checksum 0x{sum:x} (computed over the relinked file; the original's is 0x{original.Checksum:x})");
         }
 
         uint stamp = ReadUInt32(bytes, coffStart + 4);
@@ -318,7 +321,7 @@ public static class HeaderCompletion
         // checksum of a file that no longer exists.
         FinishChecksum();
 
-        if (changes.Count > 0)
+        if (changes.Count > 0 || checksumWritten)
         {
             File.WriteAllBytes(relinkedPath, bytes);
         }

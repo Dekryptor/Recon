@@ -20,6 +20,7 @@ public sealed class CommandLine
         "--threshold", "--min-score", "--function", "--jobs", "--unit",
         "--comparison", "--port", "--signatures", "--library", "--budget",
         "--inventory", "--length", "--min-fixed", "--opcode", "--lead", "--runtime", "--object", "--procedure",
+        "--min", "--encoding", "--section",
     };
 
     /// <summary>The options that take a value, for tests and for anything listing them.</summary>

@@ -58,12 +58,22 @@ internal static class EntryPoint
                 "vb6" => commands.Vb6(),
                 "pcode" => commands.Pcode(),
                 "opcodes" => commands.Opcodes(),
+                "strings" => commands.Strings(),
                 "hash" => commands.Hash(),
                 "migrate" => commands.Migrate(),
                 "schema" => commands.Schema(),
                 "gen-docs" => commands.GenerateDocs(),
                 _ => Unknown(commandLine.Command[0]),
             };
+
+            // --check-schema validates what the command just printed, and the interface document
+            // promises the run exits non-zero when the document does not match. Printing the count
+            // and dropping it was a quiet way to be wrong: a document that broke its own published
+            // contract left a zero exit code behind, which is the one thing an agent most needs told.
+            if (exit == ExitCodes.Ok && commands.SchemaViolations > 0)
+            {
+                exit = ExitCodes.CheckFailed;
+            }
 
             output.EmitFailure(command, exit);
             return exit;

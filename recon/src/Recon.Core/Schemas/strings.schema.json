@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recon.example/schemas/strings.schema.json",
+  "title": "Text in a binary",
+  "description": "The runs of printable characters a binary carries, with where each one lies: an offset for a hex editor, an address for a disassembler, and the section that maps one to the other. What counts as printable is strings(1)'s set — 0x20 to 0x7E plus tab — and a run needs no terminator, because a literal that fills its section has none.",
+  "type": "object",
+  "required": [
+    "file",
+    "strings",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path of the binary as it was given."
+    },
+    "sha256": {
+      "type": "string",
+      "description": "Digest of the whole file."
+    },
+    "format": {
+      "type": ["string", "null"],
+      "description": "pe32, pe64, elf32, elf64 or macho: what the file's own magic says it is. Null when no loader claimed it, in which case the whole file was scanned and no rva is reported."
+    },
+    "strings": {
+      "type": "array",
+      "description": "One entry per run, in the order they lie in the file.",
+      "items": {
+        "type": "object",
+        "required": [
+          "offset",
+          "encoding",
+          "length",
+          "bytes",
+          "text"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "description": "Offset in the file, counted from zero."
+          },
+          "rva": {
+            "type": ["integer", "null"],
+            "description": "Address in the loaded image, when a section maps the offset. Null for a run in a header or an overlay, which is not loaded."
+          },
+          "section": {
+            "type": "string",
+            "description": "The section the run lies in; empty when none does."
+          },
+          "encoding": {
+            "enum": [
+              "ascii",
+              "utf16"
+            ],
+            "description": "One byte per character, or two little-endian."
+          },
+          "length": {
+            "type": "integer",
+            "description": "Characters in the run, which is not the same as bytes for utf16."
+          },
+          "bytes": {
+            "type": "integer",
+            "description": "Bytes the run occupies in the file."
+          },
+          "text": {
+            "type": "string",
+            "description": "The characters themselves, verbatim: they may contain tab."
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "reported",
+        "found"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "reported": {
+          "type": "integer",
+          "description": "Runs in this document, after any filter."
+        },
+        "found": {
+          "type": "integer",
+          "description": "Runs the scan found, before any filter: larger than reported means the filter dropped some."
+        },
+        "ascii": {
+          "type": "integer"
+        },
+        "utf16": {
+          "type": "integer"
+        },
+        "distinct": {
+          "type": "integer",
+          "description": "Distinct texts among the runs found: how much of the file's text is repetition."
+        },
+        "bytes_scanned": {
+          "type": "integer",
+          "description": "Bytes the scan covered: the whole file, or one section when one was named."
+        },
+        "min_length": {
+          "type": "integer",
+          "description": "The shortest run that was reported, which is the threshold that was in force."
+        },
+        "sections_scanned": {
+          "type": "array",
+          "description": "Sections the scan covered, in file order; empty when the file is not one whose sections are known, in which case the whole file was scanned.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "description": "Anything that stopped the reading from being complete, said rather than swallowed.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

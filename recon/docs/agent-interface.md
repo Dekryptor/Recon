@@ -61,6 +61,7 @@ Each step reads what the last one wrote, so an agent can stop after any of them 
 | `report` | progress shares and history | `progress` |
 | `delink` | the pieces of the original | `delink` |
 | `link` | the relinked image and how much of it is rebuilt | `link` |
+| `strings` | the runs of printable characters, with the offset, the address and the section of each | `strings` |
 | `migrate` | every configuration file and the schema version it carries | `migrate` |
 | any command that fails without a document of its own | why it failed | `error` |
 

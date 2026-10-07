@@ -14,7 +14,14 @@ namespace Recon.Tests;
 /// there is no report to print, which is exactly when a script or an agent is stuck reading prose
 /// off stderr. In the "cli" collection because <see cref="CliRun"/> swaps <see cref="Console.Out"/>.
 /// </summary>
+/// <summary>
+/// Every test here drives a command over <c>examples/elf-project</c>, whose inputs are ELF corpus
+/// binaries, so none of them can run before <c>tools/build-elf-corpus.sh</c> has. The trait is how CI
+/// excludes them on a host that cannot build that corpus at all (Windows has no ELF compiler) instead
+/// of letting them fail as if the tool were broken.
+/// </summary>
 [Collection("cli")]
+[Trait("requires", "elf-corpus")]
 public class AgentInterfaceTests
 {
     private static string ElfProject => Path.Combine(TestPaths.RepositoryRoot, "examples", "elf-project");
@@ -314,8 +321,22 @@ public class AgentInterfaceTests
     {
         var run = CliRun.Run([.. command.Split(' '), "--project", ElfProject, "--json", "--check-schema"]);
 
-        Assert.Equal(0, run.ExitCode);
         Assert.Empty(Validate(run.StandardOutput, schema));
+
+        if (command == "doctor")
+        {
+            // `doctor` answers about this machine, and `examples/elf-project` pins the SHA-256 of the
+            // corpus it was written against, so a corpus rebuilt by another compiler is — correctly —
+            // reported as a different build, and the command exits 1. What has to hold whatever the
+            // machine looks like is that the exit code agrees with the document: every other row here
+            // exits 0 on a machine that is set up the way the example expects, and a doctor that
+            // reported a problem while exiting 0 would be the bug this catches.
+            bool ok = JsonNode.Parse(run.StandardOutput)!["ok"]!.GetValue<bool>();
+            Assert.Equal(ok ? 0 : 1, run.ExitCode);
+            return;
+        }
+
+        Assert.Equal(0, run.ExitCode);
     }
 
     /// <summary>

@@ -136,6 +136,25 @@ public class BuildTests
         Assert.Contains("local.toml", use.CcProblem);
     }
 
+    /// <summary>
+    /// A bare tool name is looked up with the extension an executable really has on Windows. The
+    /// shipped GCC and Clang profiles name their compiler <c>gcc</c> and <c>clang</c> — the Unix
+    /// convention, because that is where those tools live — so without this the one platform those
+    /// profiles are for is the one where every one of them reports its compiler missing. The two
+    /// branches are both checked here because only one of them can run on any given machine, and the
+    /// one that cannot run is the one that was wrong.
+    /// </summary>
+    [Fact]
+    public void A_bare_tool_name_is_looked_up_with_its_extension_where_the_platform_has_one()
+    {
+        Assert.Equal(["gcc"], ToolResolver.CandidateNames("gcc", windows: false));
+        Assert.Equal(["gcc", "gcc.exe"], ToolResolver.CandidateNames("gcc", windows: true));
+
+        // Named with the extension already, there is nothing to add — and nothing to look for twice.
+        Assert.Equal(["cl.exe"], ToolResolver.CandidateNames("cl.exe", windows: true));
+        Assert.Equal(["cl.EXE"], ToolResolver.CandidateNames("cl.EXE", windows: true));
+    }
+
     [Fact]
     public void The_toolchain_fingerprint_covers_what_changes_the_output()
     {

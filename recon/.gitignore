@@ -4,6 +4,10 @@ bin/
 obj/
 *.user
 
+# What the tool writes into a project by default: an inventory, a comparison, the delinked pieces.
+# They are measurements of an input, produced by running a command, and are rebuilt rather than kept.
+build/
+
 # The test corpora are generated, never committed: the repository stores no binaries. Rebuild them
 # with tools/build-corpus.sh (MinGW), tools/build-msvc-corpus.sh (MSVC ABI + PDB) and
 # tools/build-elf-corpus.sh (ELF, with the host compiler).
