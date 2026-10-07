@@ -114,14 +114,39 @@ public static class ToolResolver
 
         foreach (string directory in pathVariable.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
         {
-            string candidate = Path.Combine(directory, name);
-            if (File.Exists(candidate))
+            foreach (string candidateName in CandidateNames(name, OperatingSystem.IsWindows()))
             {
-                return Path.GetFullPath(candidate);
+                string candidate = Path.Combine(directory, candidateName);
+                if (File.Exists(candidate))
+                {
+                    return Path.GetFullPath(candidate);
+                }
             }
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// The names a bare <paramref name="name"/> can have in a directory on PATH: itself, and on
+    /// Windows itself plus <c>.exe</c>. The extension is part of an executable's name there and
+    /// nothing appends it for us — <c>File.Exists("C:\\msys64\\mingw64\\bin\\gcc")</c> is
+    /// false while <c>gcc.exe</c> is right there — so every profile that states the Unix convention
+    /// (<c>exe = "gcc"</c>, which the shipped GCC and Clang profiles do) would report its compiler
+    /// missing on the platform those profiles exist to build for. Windows resolves a name without
+    /// an extension when it starts a process, which is why this was invisible until the resolved
+    /// path was checked for existence.
+    /// </summary>
+    public static IEnumerable<string> CandidateNames(string name, bool windows)
+    {
+        yield return name;
+
+        if (!windows || name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+        {
+            yield break;
+        }
+
+        yield return name + ".exe";
     }
 
     /// <summary>

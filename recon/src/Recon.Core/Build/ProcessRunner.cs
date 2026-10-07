@@ -51,9 +51,16 @@ public static class ProcessRunner
                 return new ToolOutcome(-1, 0, [$"could not start {command.Executable}"]);
             }
 
-            string standardError = process.StandardError.ReadToEnd();
-            string standardOutput = process.StandardOutput.ReadToEnd();
+            // Both streams are drained at once. Reading one to the end before starting on the other
+            // deadlocks as soon as a tool fills the pipe that is not being read: the child blocks
+            // writing, this side blocks reading, and neither ever moves again. One compile that puts
+            // enough on stdout and anything at all on stderr is enough to hang a build, and on
+            // Windows the pipe buffers are smaller, so it happens sooner.
+            Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
+            Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
             process.WaitForExit();
+            string standardError = standardErrorTask.GetAwaiter().GetResult();
+            string standardOutput = standardOutputTask.GetAwaiter().GetResult();
             stopwatch.Stop();
             diagnostics.AddRange(Tail(standardError));
             if (diagnostics.Count == 0)

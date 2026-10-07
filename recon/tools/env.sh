@@ -4,17 +4,26 @@
 # The SDK lives outside the workspace on purpose — it is a few hundred megabytes that no clone of
 # this repository needs to carry — so where it is depends on the machine. The first place below
 # that holds a usable `dotnet` wins, and an existing DOTNET_ROOT is always respected.
-if [ -z "${DOTNET_ROOT:-}" ] || [ ! -x "${DOTNET_ROOT}/dotnet" ]; then
+#
+# The entry point is `dotnet` everywhere but Windows, where it is `dotnet.exe` and nothing appends the
+# extension — the same trap as a bare `gcc` in a toolchain profile. Both names are looked for, so this
+# file works in Git Bash as well as in a Unix shell, and the Windows install locations are in the list.
+has_dotnet() {
+    [ -n "${1:-}" ] && { [ -x "${1}/dotnet" ] || [ -x "${1}/dotnet.exe" ]; }
+}
+
+if ! has_dotnet "${DOTNET_ROOT:-}"; then
     for candidate in /opt/dotnet /usr/share/dotnet /usr/lib/dotnet \
-                     "${HOME}/.dotnet" "${HOME}/.cache/dotnet" /var/tmp/dotnet /tmp/dotnet; do
-        if [ -x "${candidate}/dotnet" ]; then
+                     "${HOME}/.dotnet" "${HOME}/.cache/dotnet" /var/tmp/dotnet /tmp/dotnet \
+                     "/c/Program Files/dotnet" "${LOCALAPPDATA:-/nonexistent}/Microsoft/dotnet"; do
+        if has_dotnet "${candidate}"; then
             export DOTNET_ROOT="${candidate}"
             break
         fi
     done
 fi
 
-if [ -n "${DOTNET_ROOT:-}" ] && [ -x "${DOTNET_ROOT}/dotnet" ]; then
+if has_dotnet "${DOTNET_ROOT:-}"; then
     export PATH="${DOTNET_ROOT}:${PATH}"
 fi
 
