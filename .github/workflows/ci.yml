@@ -1,9 +1,13 @@
 name: ci
 
-# The gates AGENTS.md names, run on a machine that is not the author's: build, test, the two corpus
+# The gates AGENTS.md names, run on a machine that is not the author's: build, test, the corpus
 # harnesses, and the NativeAOT publish that has to stay warning-free. Linux gets the full toolchain
-# (mingw, clang, lld, llvm) so the corpus builders run; Windows gets the build, the test suite and a
-# `win-x64` publish, which is what a Windows checkout does.
+# (mingw, clang, lld, llvm) so the corpus builders run and the whole suite can; Windows gets the
+# build, the part of the suite that needs no generated corpus, and a `win-x64` publish.
+#
+# This file lives at the repository root because that is the only place GitHub reads workflows from —
+# in `recon/` it was invisible, which is why nothing has ever run. The project is in `recon/`, so
+# every step says so.
 on:
   push:
   pull_request:
@@ -16,16 +20,21 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "1"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
-  # `Directory.Build.props` refuses a package cache that would land inside the workspace when the SDK
-  # lives outside it; keeping it in the runner's temp directory satisfies that on every host.
-  NUGET_PACKAGES: ${{ runner.temp }}/nuget/packages
-  NUGET_HTTP_CACHE_PATH: ${{ runner.temp }}/nuget/http-cache
+  # The package cache must not land inside `$HOME`, and that is a build error rather than a
+  # preference: `recon/Directory.Build.props` fails the build when the checkout is under `$HOME`
+  # (it is, on a runner) *and* the cache is too. `runner.temp` is under `/home/runner` on Linux, so
+  # the cache goes to `/tmp` there; on Windows `runner.temp` is on D: and the check cannot trip.
+  NUGET_PACKAGES: /tmp/nuget/packages
+  NUGET_HTTP_CACHE_PATH: /tmp/nuget/http-cache
 
 jobs:
   linux:
     name: linux — build, test, corpus harnesses, AOT publish
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: recon
     steps:
       - uses: actions/checkout@v4
 
@@ -67,9 +76,16 @@ jobs:
         run: dotnet publish src/Recon.Cli/Recon.Cli.csproj -c Release -r linux-x64 --nologo
 
   windows:
-    name: windows — build, test, AOT publish
+    name: windows — build, tests that need no corpus, AOT publish
     runs-on: windows-latest
     timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: recon
+    env:
+      # `runner.temp` is on D: on a Windows runner, so this cannot trip the `$HOME` check either way.
+      NUGET_PACKAGES: ${{ runner.temp }}/nuget/packages
+      NUGET_HTTP_CACHE_PATH: ${{ runner.temp }}/nuget/http-cache
     steps:
       - uses: actions/checkout@v4
 
@@ -83,8 +99,17 @@ jobs:
       - name: build
         run: dotnet build tests/Recon.Tests/Recon.Tests.csproj -c Debug --nologo -v minimal
 
-      - name: test
-        run: dotnet test tests/Recon.Tests/Recon.Tests.csproj -c Debug --no-build --nologo --logger "console;verbosity=normal"
+      # The ELF corpus is built by the host's own compiler and cannot be produced on Windows at all,
+      # so the classes that need it are excluded by trait rather than left to fail. They are not
+      # silently skipped: the linux job runs them, and `tools/build-elf-corpus.sh` runs them on any
+      # machine with gcc. What is verified here is that the tool, its tests and its publish are built
+      # by the Microsoft toolchain — including the resolver that looks for `gcc.exe` when a profile
+      # says `gcc`.
+      - name: test (everything that does not need a generated corpus)
+        run: >
+          dotnet test tests/Recon.Tests/Recon.Tests.csproj -c Debug --no-build --nologo
+          --logger "console;verbosity=normal"
+          --filter "requires!=elf-corpus"
 
       - name: NativeAOT publish (win-x64)
         run: dotnet publish src/Recon.Cli/Recon.Cli.csproj -c Release -r win-x64 --nologo

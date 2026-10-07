@@ -24,6 +24,12 @@ bash tools/validate-corpus.sh --verbose   # the acceptance harness: every PE, EL
 bash tools/relink-corpus.sh               # delink + relink every corpus binary, and the verdict
 
 dotnet publish src/Recon.Cli/Recon.Cli.csproj -c Release -r linux-x64   # NativeAOT, must stay warning-free
+
+# The same gates run on a machine that is not this one: .github/workflows/ci.yml, at the *repository*
+# root, because that is where the only directory GitHub reads workflows from is. The project is in
+# `recon/`, so every step sets that as its working directory — a copy of that file under `recon/` is
+# invisible and runs nothing. Its Windows job runs `--filter "requires!=elf-corpus"`: the ELF corpus
+# cannot be built on Windows, and the classes that need it say so with a trait instead of failing.
 dotnet out/bin/Recon.Cli/debug/recon.dll gen-docs                       # regenerate docs/cli.md
 RECON_UPDATE_GOLDEN=1 dotnet test --filter GoldenTests                  # rewrite the golden files (deliberately)
 ```

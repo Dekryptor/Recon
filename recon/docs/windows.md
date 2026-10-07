@@ -110,8 +110,29 @@ names. Under **Git Bash (Git for Windows) or MSYS2** they run, with these caveat
   this in mind; `tools/build-corpus.sh` (MinGW) wants `i686-w64-mingw32-gcc`, which MSYS2's
   `mingw-w64-i686-gcc` package installs under a different name — the script takes `CC` from the
   environment, which is the way around it.
-* There is no `bootstrap.sh`. `tools/env.sh` is the only setup step, and the README's command list is
-  the entry point after it.
+* `tools/env.sh` is the only setup the project itself needs; the repository root also has a
+  `bootstrap.sh` that installs the SDK, plus clang/lld/llvm and MinGW with `apt`, and builds the CLI —
+  it is **for the Linux sandbox** (that is what `apt-get` and `/opt/dotnet` mean in it), and it is not
+  a Windows setup script. On Windows the equivalent is: install the SDK, then set `DOTNET_ROOT`.
+
+## Running the tests on Windows
+
+The generated corpora are git-ignored and built by `tools/build-*.sh`, and the ELF one cannot be built
+on Windows at all — its builder compiles with the *host* compiler, which on Windows produces PE. Three
+test classes drive commands over `examples/elf-project`, whose inputs are those corpus binaries:
+`AgentInterfaceTests`, `PermuteRunnerTests` and `StringsTests`. They carry
+`[Trait("requires", "elf-corpus")]`, so a Windows run leaves them out by trait rather than watching them
+fail:
+
+```powershell
+dotnet test tests\Recon.Tests\Recon.Tests.csproj --filter "requires!=elf-corpus"
+```
+
+That is what `.github/workflows/ci.yml`'s Windows job runs. Everything else runs: the PE, Mach-O and
+COFF readers, the disassembler, the inventory, the compare engine, the VB6 and p-code readers, the
+schemas and the toolchain resolver — over the corpus files that *are* in the checkout (`tests/corpus/macho`,
+`tests/corpus/pdata-seh`) and over fixtures the tests build themselves. Without the filter, those three
+classes fail on purpose, with a message naming the script that would produce the corpus.
 
 ## What has not been tested anywhere yet
 
@@ -160,3 +181,4 @@ the pattern every toolchain failure follows, and `doctor` is the command that co
 * `docs/agent-interface.md` — the JSON contracts, and the exit codes a script can rely on.
 * Commits `e60807e` (the schema, checksum and `--check-schema` defects), `6b59d54` (`strings`) and
   `728f933` (the three Windows-only defects above).
+* `AGENTS.md` — the gates and conventions this document is written against.

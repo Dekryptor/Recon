@@ -14,7 +14,14 @@ namespace Recon.Tests;
 /// there is no report to print, which is exactly when a script or an agent is stuck reading prose
 /// off stderr. In the "cli" collection because <see cref="CliRun"/> swaps <see cref="Console.Out"/>.
 /// </summary>
+/// <summary>
+/// Every test here drives a command over <c>examples/elf-project</c>, whose inputs are ELF corpus
+/// binaries, so none of them can run before <c>tools/build-elf-corpus.sh</c> has. The trait is how CI
+/// excludes them on a host that cannot build that corpus at all (Windows has no ELF compiler) instead
+/// of letting them fail as if the tool were broken.
+/// </summary>
 [Collection("cli")]
+[Trait("requires", "elf-corpus")]
 public class AgentInterfaceTests
 {
     private static string ElfProject => Path.Combine(TestPaths.RepositoryRoot, "examples", "elf-project");

@@ -16,6 +16,7 @@ namespace Recon.Tests;
 /// Each test skips when its corpus is missing, the way the rest of the suite does.
 /// </summary>
 [Collection("cli")]
+[Trait("requires", "elf-corpus")]
 public class StringsTests
 {
     /// <summary>The VB6 sample from <c>RECON_VB6_INPUTS</c>, or null when this machine has none.</summary>
