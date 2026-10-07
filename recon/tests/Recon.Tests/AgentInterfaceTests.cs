@@ -314,8 +314,22 @@ public class AgentInterfaceTests
     {
         var run = CliRun.Run([.. command.Split(' '), "--project", ElfProject, "--json", "--check-schema"]);
 
-        Assert.Equal(0, run.ExitCode);
         Assert.Empty(Validate(run.StandardOutput, schema));
+
+        if (command == "doctor")
+        {
+            // `doctor` answers about this machine, and `examples/elf-project` pins the SHA-256 of the
+            // corpus it was written against, so a corpus rebuilt by another compiler is — correctly —
+            // reported as a different build, and the command exits 1. What has to hold whatever the
+            // machine looks like is that the exit code agrees with the document: every other row here
+            // exits 0 on a machine that is set up the way the example expects, and a doctor that
+            // reported a problem while exiting 0 would be the bug this catches.
+            bool ok = JsonNode.Parse(run.StandardOutput)!["ok"]!.GetValue<bool>();
+            Assert.Equal(ok ? 0 : 1, run.ExitCode);
+            return;
+        }
+
+        Assert.Equal(0, run.ExitCode);
     }
 
     /// <summary>

@@ -24,7 +24,17 @@ internal sealed class Commands(Output output, CommandLine commandLine)
     /// <c>--check-schema</c> was given. Every command that prints a document does it this way, so
     /// every published contract is checked by the thing that publishes it.
     /// </summary>
-    private void EmitWithSchemaCheck<T>(T document, string schema)
+    /// <remarks>
+    /// The count is kept rather than only printed: <c>docs/agent-interface.md</c> says a run with
+    /// <c>--check-schema</c> exits non-zero when the document does not match, and a violation that
+    /// only reached <see cref="Output.Line"/> reached nobody — that line is suppressed under
+    /// <c>--json</c>, which is exactly the mode in which a machine is checking, and it never moved
+    /// the exit code in any mode. The count is folded into the exit code by the entry point.
+    /// Internal rather than private so the test project can hand it a schema this build does not
+    /// have: a shipped document that matches its schema cannot reach the failing path, which is the
+    /// point of the schemas.
+    /// </remarks>
+    internal void EmitWithSchemaCheck<T>(T document, string schema)
     {
         _out.EmitJson(document);
 
@@ -34,10 +44,14 @@ internal sealed class Commands(Output output, CommandLine commandLine)
         }
 
         int violations = ValidateAgainstSchema(schema, Recon.Reporting.Reports.Serialize(document));
+        SchemaViolations += violations;
         _out.Line(violations == 0
             ? $"{schema} document matches schema 0.1"
             : $"{schema} document has {violations} schema violation(s)");
     }
+
+    /// <summary>Violations <c>--check-schema</c> found in the documents this run published.</summary>
+    public int SchemaViolations { get; private set; }
 
     // ---------------------------------------------------------------- init
 
@@ -2171,8 +2185,9 @@ internal sealed class Commands(Output output, CommandLine commandLine)
         var rebuilt = Recon.Delink.RebuiltPieces.Collect(context, plan, rebuiltProblems);
 
         // Which linker is going to place the sections decides what their names have to be, so the
-        // toolchain is resolved before a line of assembly is written.
-        var toolchain = ResolveLinkToolchain(context, plan, image.Image, debug);
+        // toolchain is resolved before a line of assembly is written. The image is loaded by now —
+        // `plan` was built from it — but the tuple it travels in carries it as nullable.
+        var toolchain = ResolveLinkToolchain(context, plan, image.Image!, debug);
         if (toolchain is null)
         {
             return ExitCodes.Configuration;
@@ -3755,6 +3770,224 @@ internal sealed class Commands(Output output, CommandLine commandLine)
         }
 
         return program.Ok ? ExitCodes.Ok : ExitCodes.CheckFailed;
+    }
+
+    /// <summary>
+    /// <c>recon strings</c>: the text a binary carries. A reversing session starts here — an error
+    /// message, a format string or a URL names the code around it — and until now the tool could
+    /// name sections, functions and imports but had no way to hand back the literal characters.
+    /// </summary>
+    public int Strings()
+    {
+        string? file = _args.Arguments.FirstOrDefault();
+        if (file is null)
+        {
+            _out.Error("usage: recon strings <file> [--min=N] [--encoding=NAME] [--section=NAME] [--filter=TEXT] [--unique] [--limit=N] [--all] [--json] [--check-schema]");
+            return ExitCodes.Usage;
+        }
+
+        if (!File.Exists(file))
+        {
+            _out.Error($"{file}: not found");
+            return ExitCodes.Usage;
+        }
+
+        int min = 4;
+        if (_args.Value("--min") is { } minText)
+        {
+            if (!int.TryParse(minText, out min) || min < 1)
+            {
+                _out.Error($"--min takes a count of characters, at least 1; got \"{minText}\"");
+                return ExitCodes.Usage;
+            }
+        }
+
+        bool ascii = true;
+        bool utf16 = true;
+        if (_args.Value("--encoding") is { } encoding)
+        {
+            switch (encoding.ToLowerInvariant())
+            {
+                case "ascii":
+                    utf16 = false;
+                    break;
+                case "utf16":
+                case "utf-16":
+                case "utf16le":
+                    ascii = false;
+                    break;
+                case "both":
+                    break;
+                default:
+                    _out.Error($"--encoding takes ascii, utf16 or both; got \"{encoding}\"");
+                    return ExitCodes.Usage;
+            }
+        }
+
+        string? section = _args.Value("--section");
+        var loaded = Recon.Images.ImageLoader.Load(file);
+        var image = loaded.Image;
+
+        if (section is not null && image is null)
+        {
+            _out.Error($"--section needs a format this build reads, and {file} is not one");
+            return ExitCodes.Usage;
+        }
+
+        var options = new Recon.Strings.StringScanOptions
+        {
+            MinLength = min,
+            Ascii = ascii,
+            Utf16 = utf16,
+            Section = section,
+        };
+
+        var found = Recon.Strings.StringScanner.Scan(loaded.Bytes, image, options);
+
+        // A section that was named and does not exist is an argument that named nothing, and saying
+        // so beats printing an empty table: the two look the same from the outside and mean opposite
+        // things. The sections are listed because the likely mistake is the leading dot.
+        if (section is not null && found.Count == 0 && image is not null &&
+            !image.Sections.Any(s => string.Equals(s.Name, section, StringComparison.Ordinal) ||
+                                     string.Equals(s.Name.TrimStart('.'), section.TrimStart('.'), StringComparison.Ordinal)))
+        {
+            _out.Error($"{file} has no section named \"{section}\"; it has: {string.Join(", ", image.Sections.Select(s => s.Name))}");
+            return ExitCodes.Usage;
+        }
+
+        string? filter = _args.Value("--filter");
+        var rows = found.AsEnumerable();
+        if (filter is not null)
+        {
+            rows = rows.Where(s => s.Text.Contains(filter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // The same text appearing two hundred times is one finding and two hundred addresses, so
+        // --unique keeps the first of each and says how many it dropped through the summary.
+        if (_args.Has("--unique"))
+        {
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            rows = rows.Where(s => seen.Add(s.Text));
+        }
+
+        var reported = rows.ToList();
+
+        string? format = string.IsNullOrEmpty(loaded.Format) ? null : loaded.Format;
+        var document = new Recon.Reporting.StringsReport
+        {
+            Command = "recon strings",
+            ToolVersion = EntryPoint.Version,
+            File = file,
+            Sha256 = PeImage.HashFile(file),
+            Format = format,
+            Strings = reported.Select(s => new Recon.Reporting.StringRow
+            {
+                Offset = s.Offset,
+                Rva = s.Rva,
+                Section = s.Section,
+                Encoding = s.Kind == Recon.Strings.StringKind.Ascii ? "ascii" : "utf16",
+                Length = s.Length,
+                Bytes = s.ByteLength,
+                Text = s.Text,
+            }).ToList(),
+            Problems = loaded.Format.Length == 0 ? [] : loaded.Problems.ToList(),
+        };
+
+        document.Summary = new Recon.Reporting.StringsSummary
+        {
+            Reported = reported.Count,
+            Found = found.Count,
+            Ascii = found.Count(s => s.Kind == Recon.Strings.StringKind.Ascii),
+            Utf16 = found.Count(s => s.Kind == Recon.Strings.StringKind.Utf16),
+            Distinct = found.Select(s => s.Text).Distinct(StringComparer.Ordinal).Count(),
+            BytesScanned = BytesScanned(loaded.Bytes.LongLength, image, section),
+            MinLength = min,
+            SectionsScanned = (image?.Sections ?? [])
+                .Where(s => s.RawSize > 0 && (section is null || string.Equals(s.Name, section, StringComparison.Ordinal) || string.Equals(s.Name.TrimStart('.'), section.TrimStart('.'), StringComparison.Ordinal)))
+                .Select(s => s.Name)
+                .ToList(),
+        };
+
+        EmitWithSchemaCheck(document, "strings");
+
+        // The format not being recognised is not a problem with the file's text: every byte was
+        // scanned and every run is in the document, so the exit code stays 0 and this line says why
+        // there are no addresses.
+        if (format is null)
+        {
+            _out.Warn($"cannot tell what {file} is; the whole file was scanned and no rva is reported");
+        }
+
+        int limit = _args.Has("--all") ? int.MaxValue : _args.Count() ?? 40;
+        _out.Table(
+            reported.Take(limit).Select(s => new[]
+            {
+                s.Rva is { } rva ? $"0x{rva:X8}" : string.Empty,
+                $"0x{s.Offset:X6}",
+                s.Section,
+                s.Kind == Recon.Strings.StringKind.Ascii ? "ascii" : "utf16",
+                Escape(s.Text),
+            }),
+            "rva", "offset", "section", "enc", "text");
+
+        if (reported.Count > limit)
+        {
+            _out.Line($"  {reported.Count - limit} more ({reported.Count} reported; --all for every one)");
+        }
+
+        if (filter is not null || _args.Has("--unique"))
+        {
+            _out.Line($"  {found.Count} found, {reported.Count} after the filter");
+        }
+
+        foreach (string problem in document.Problems)
+        {
+            _out.Warn(problem);
+        }
+
+        return document.Problems.Count == 0 ? ExitCodes.Ok : ExitCodes.CheckFailed;
+    }
+
+    /// <summary>How many bytes a scan covers: the named section's raw bytes, or the whole file.</summary>
+    private static long BytesScanned(long fileLength, Recon.Images.IBinaryImage? image, string? section)
+    {
+        if (image is null || section is null)
+        {
+            return fileLength;
+        }
+
+        foreach (var candidate in image.Sections)
+        {
+            if (string.Equals(candidate.Name, section, StringComparison.Ordinal) ||
+                string.Equals(candidate.Name.TrimStart('.'), section.TrimStart('.'), StringComparison.Ordinal))
+            {
+                long start = candidate.RawOffset;
+                return Math.Max(0, Math.Min(fileLength, start + candidate.RawSize) - Math.Min(fileLength, start));
+            }
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// A string in a one-line table: a tab would break the column it is in, and the point of the
+    /// table is that the columns line up. The JSON keeps the characters verbatim.
+    /// </summary>
+    private static string Escape(string text)
+    {
+        var builder = new System.Text.StringBuilder(text.Length);
+        foreach (char c in text)
+        {
+            builder.Append(c switch
+            {
+                '\t' => "\\t",
+                '\r' => "\\r",
+                '\n' => "\\n",
+                _ => c,
+            });
+        }
+
+        return builder.ToString();
     }
 
     public int Lib()

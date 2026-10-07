@@ -21,7 +21,7 @@
         "additionalProperties": false,
         "properties": {
           "name": { "type": "string" },
-          "status": { "type": "string", "enum": ["ok", "warn", "missing", "error"] },
+          "status": { "type": "string", "enum": ["ok", "warn", "fail"], "description": "ok when the check passed, warn when the project can still be worked on, fail when something the project needs is missing or wrong: the three values Recon.Core/Doctor.cs writes." },
           "detail": { "type": "string" },
           "hint": { "type": ["string", "null"], "description": "What to do about it, when there is something to do." }
         }

@@ -151,8 +151,19 @@ public class ElfToolchainTests
 
         Assert.NotEmpty(report.Suggestions);
         Assert.Equal("gcc-14-elf64", report.Suggestions[0].ProfileId);
-        Assert.Equal("high", report.Suggestions[0].Confidence);
         Assert.Contains("comment_section", report.Suggestions[0].Evidence);
+
+        // `tools/build-elf-corpus.sh` builds the corpus with the gcc on PATH, so the binary under this
+        // test is not always a GCC 14 build while the profile is: the `.comment` rule matches the
+        // family either way, but the profile's DWARF-producer rules name the version, so a 12 or a 13
+        // comes back on one kind of evidence ("medium") rather than two ("high"). The version is read
+        // from the binary's own comment string rather than assumed from the host, which is what makes
+        // this hold on a machine whose default compiler is some other GCC.
+        string comment = image.Elf?.CommentStrings.FirstOrDefault(c => c.StartsWith("GCC:", StringComparison.Ordinal)) ?? string.Empty;
+        string version = comment[(comment.LastIndexOf(')') + 1)..].Trim();
+        Assert.Equal(
+            version.StartsWith("14.", StringComparison.Ordinal) ? "high" : "medium",
+            report.Suggestions[0].Confidence);
     }
 
     [Fact]
